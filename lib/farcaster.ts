@@ -158,3 +158,26 @@ export async function getBulkUserInfo(fids: number[]): Promise<FarcasterUser[]> 
         throw new Error('Failed to get bulk user info');
     }
 }
+
+// Kullanıcının doğrulanmış cüzdan adresini al (ETH Mainnet/Base)
+export async function getVerifiedAddress(fid: number): Promise<string | null> {
+    try {
+        const response = await axios.get(`${NEYNAR_API_BASE}/farcaster/user/bulk`, {
+            headers: { 'api_key': NEYNAR_API_KEY },
+            params: { fids: fid.toString() }
+        });
+
+        const user = response.data.users[0];
+
+        // İlk doğrulanmış adresi döndür (genellikle en güvenilir olan)
+        if (user.verified_addresses?.eth_addresses?.length > 0) {
+            return user.verified_addresses.eth_addresses[0];
+        }
+
+        // Yoksa custody address'i döndür (ama bu genellikle smart contract wallet olabilir)
+        return user.custody_address || null;
+    } catch (error) {
+        console.error('getVerifiedAddress error:', error);
+        return null;
+    }
+}

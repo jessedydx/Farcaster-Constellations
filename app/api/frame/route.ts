@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserInfo, analyzeInteractions, getBulkUserInfo } from '@/lib/farcaster';
+import { getUserInfo, analyzeInteractions, getBulkUserInfo, getVerifiedAddress } from '@/lib/farcaster';
 import { createOvalLayout } from '@/lib/layout';
 import { renderConstellationSVG } from '@/lib/render';
 import { uploadSVGToIPFS, createAndUploadNFTMetadata } from '@/lib/ipfs';
+import { sendNotification } from '@/lib/notifications';
 
 const CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS!;
 
@@ -10,9 +11,11 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
-        // Farcaster Frame verification
-        const { untrustedData } = body;
-        const fid = untrustedData?.fid;
+        // FID kaynağı: Frame v1 (untrustedData) veya Mini App (body.fid)
+        let fid = body.fid;
+        if (!fid && body.untrustedData) {
+            fid = body.untrustedData.fid;
+        }
 
         if (!fid) {
             return NextResponse.json(
@@ -23,9 +26,14 @@ export async function POST(request: NextRequest) {
 
         console.log(`🎯 Processing constellation for FID: ${fid}`);
 
-        // 1. Kullanıcı bilgisini al
-        const centralUser = await getUserInfo(fid);
+        // 1. Kullanıcı bilgisini ve cüzdan adresini al
+        const [centralUser, verifiedAddress] = await Promise.all([
+            getUserInfo(fid),
+            getVerifiedAddress(fid)
+        ]);
+
         console.log(`✅ User: @${centralUser.username}`);
+        console.log(`✅ Verified Address: ${verifiedAddress || 'Not found'}`);
 
         // 2. Etkileşimleri analiz et
         const interactions = await analyzeInteractions(fid);
@@ -92,8 +100,17 @@ export async function POST(request: NextRequest) {
         );
         console.log(`✅ Metadata uploaded to IPFS: ${metadataHash}`);
 
-        // 8. Mint bilgilerini döndür (kullanıcı kendi cüzdanıyla mint edecek)
+        // 8. Mint bilgilerini döndür
         const tokenURI = `ipfs://${metadataHash}`;
+
+        // 9. Kullanıcıya bildirim gönder (Neynar Managed Notifications)
+        // Not: Bu işlem asenkron yapılabilir, cevabı beklemeye gerek yok
+        sendNotification({
+            fid,
+            title: "🌟 Constellation Ready!",
+            body: "Your Farcaster constellation map has been generated. Tap to view and mint!",
+            targetUrl: `${request.nextUrl.origin}/constellation/${fid}` // Veya ana sayfa
+        }).catch(err => console.error('Notification send error:', err));
 
         console.log(`✅ Ready for minting!`);
 
@@ -107,7 +124,7 @@ export async function POST(request: NextRequest) {
             contractAddress: CONTRACT_ADDRESS,
             // Frontend'de kullanılacak bilgiler
             mintData: {
-                recipient: '{{USER_WALLET_ADDRESS}}', // Frontend'de doldurulacak
+                recipient: verifiedAddress || '{{USER_WALLET_ADDRESS}}', // Varsa verified address, yoksa placeholder
                 fid: fid,
                 tokenURI: tokenURI
             }
