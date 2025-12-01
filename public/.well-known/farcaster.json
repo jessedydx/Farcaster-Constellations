@@ -1,0 +1,18 @@
+{
+    "accountAssociation": {
+        "header": "PLACEHOLDER",
+        "payload": "PLACEHOLDER",
+        "signature": "PLACEHOLDER"
+    },
+    "miniapp": {
+        "version": "1",
+        "name": "Farcaster Constellation NFT",
+        "iconUrl": "https://your-domain.vercel.app/icon.png",
+        "homeUrl": "https://your-domain.vercel.app",
+        "imageUrl": "https://your-domain.vercel.app/preview.png",
+        "buttonTitle": "Create Your Constellation",
+        "splashImageUrl": "https://your-domain.vercel.app/splash.png",
+        "splashBackgroundColor": "#1a0a2e",
+        "webhookUrl": "https://your-domain.vercel.app/api/webhook"
+    }
+}
