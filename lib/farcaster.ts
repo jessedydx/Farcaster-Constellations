@@ -46,9 +46,9 @@ export async function analyzeInteractions(fid: number): Promise<Interaction[]> {
         const thirtyDaysAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60);
 
         // Kullanıcının castlerini al
-        const castsResponse = await axios.get(`${NEYNAR_API_BASE}/farcaster/feed/user/${fid}`, {
+        const castsResponse = await axios.get(`${NEYNAR_API_BASE}/farcaster/feed/user/casts`, {
             headers: { 'api_key': NEYNAR_API_KEY },
-            params: { limit: 150 }
+            params: { fid: fid, limit: 150 }
         });
 
         const interactions = new Map<number, Interaction>();
