@@ -12,12 +12,15 @@
   "dependencies": {
     "@farcaster/frame-sdk": "^0.1.12",
     "@neynar/nodejs-sdk": "^3.97.0",
+    "@tanstack/react-query": "^5.90.11",
     "axios": "^1.6.2",
     "ethers": "^6.9.0",
     "next": "^14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.33.0"
+    "sharp": "^0.33.0",
+    "viem": "^2.40.3",
+    "wagmi": "^3.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",

@@ -2,6 +2,25 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import sdk, { type Context } from '@farcaster/frame-sdk';
+import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { injected } from 'wagmi/connectors';
+import { parseEther } from 'viem';
+
+// NFT Contract ABI (Sadece mint fonksiyonu için)
+const NFT_ABI = [
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_to", "type": "address" },
+            { "internalType": "string", "name": "_tokenURI", "type": "string" }
+        ],
+        "name": "mintConstellation",
+        "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+] as const;
 
 export default function Home() {
     const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -11,19 +30,27 @@ export default function Home() {
     const [constellationData, setConstellationData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
 
+    // Wagmi Hooks
+    const { address, isConnected } = useAccount();
+    const { connect } = useConnect();
+    const { writeContract, data: hash, error: mintError, isPending: isMintPending } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+        hash,
+    });
+
     useEffect(() => {
         const load = async () => {
             setContext(await sdk.context);
             sdk.actions.ready();
             setIsSDKLoaded(true);
 
-            // Check if added (this is a basic check, real check might need backend)
-            // For now, we assume if we have context, we are in Farcaster
+            // Otomatik cüzdan bağlantısı dene (Farcaster içinde)
+            connect({ connector: injected() });
         };
         if (sdk && !isSDKLoaded) {
             load();
         }
-    }, [isSDKLoaded]);
+    }, [isSDKLoaded, connect]);
 
     const addToFarcaster = useCallback(async () => {
         try {
@@ -64,6 +91,30 @@ export default function Home() {
         }
     };
 
+    const mintNFT = async () => {
+        if (!isConnected || !address) {
+            connect({ connector: injected() });
+            return;
+        }
+
+        if (!constellationData?.tokenURI) {
+            setError("No constellation data found to mint.");
+            return;
+        }
+
+        try {
+            writeContract({
+                address: constellationData.contractAddress as `0x${string}`,
+                abi: NFT_ABI,
+                functionName: 'mintConstellation',
+                args: [address, constellationData.tokenURI],
+            });
+        } catch (err: any) {
+            console.error("Mint error:", err);
+            setError(err.message);
+        }
+    };
+
     const copyToClipboard = () => {
         if (typeof window !== 'undefined') {
             const url = `${window.location.origin}/api/frame`;
@@ -85,9 +136,9 @@ export default function Home() {
                     </p>
 
                     {/* Error Message */}
-                    {error && (
+                    {(error || mintError) && (
                         <div style={styles.errorBox}>
-                            ⚠️ {error}
+                            ⚠️ {error || mintError?.message}
                         </div>
                     )}
 
@@ -135,27 +186,44 @@ export default function Home() {
                     ) : (
                         <div style={styles.resultBox}>
                             <h2 style={styles.frameTitle}>Constellation Ready! 🌟</h2>
-                            <img
-                                src={constellationData.imageUrl}
-                                alt="Your Constellation"
-                                style={styles.previewImage}
-                            />
+
+                            {/* Görsel Alanı */}
+                            <div style={styles.imageContainer}>
+                                <img
+                                    src={constellationData.imageUrl}
+                                    alt="Your Constellation"
+                                    style={styles.previewImage}
+                                />
+                            </div>
+
                             <p style={styles.frameText}>
-                                Your unique social map has been generated and uploaded to IPFS.
+                                Your unique social map has been generated!
                             </p>
 
                             <div style={styles.buttonGroup}>
-                                <a
-                                    href={`https://basescan.org/address/${constellationData.contractAddress}#writeContract`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{ ...styles.button, textDecoration: 'none', display: 'inline-block' }}
-                                >
-                                    💎 Mint NFT (BaseScan)
-                                </a>
-                                <p style={{ fontSize: '0.8rem', marginTop: '8px', color: '#6b7280' }}>
-                                    (Frontend minting coming soon!)
-                                </p>
+                                {!isConfirmed ? (
+                                    <button
+                                        onClick={mintNFT}
+                                        disabled={isMintPending || isConfirming}
+                                        style={{ ...styles.button, opacity: (isMintPending || isConfirming) ? 0.7 : 1 }}
+                                    >
+                                        {isMintPending ? 'Confirming in Wallet...' :
+                                            isConfirming ? 'Minting...' :
+                                                '💎 Mint NFT (Free)'}
+                                    </button>
+                                ) : (
+                                    <div style={styles.successBox}>
+                                        <h3>🎉 Minted Successfully!</h3>
+                                        <a
+                                            href={`https://basescan.org/tx/${hash}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{ color: '#00ffff', textDecoration: 'underline' }}
+                                        >
+                                            View on BaseScan
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -265,6 +333,12 @@ const styles = {
         border: '1px solid #00ffff',
         boxShadow: '0 0 30px rgba(0, 255, 255, 0.2)',
     },
+    imageContainer: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        marginBottom: '24px',
+    },
     frameTitle: {
         fontSize: 'clamp(1.25rem, 5vw, 1.5rem)',
         fontWeight: 'bold',
@@ -311,8 +385,8 @@ const styles = {
         width: '100%',
         maxWidth: '400px',
         borderRadius: '8px',
-        marginBottom: '24px',
         border: '2px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)',
     },
     errorBox: {
         background: 'rgba(255, 0, 0, 0.2)',
@@ -321,5 +395,13 @@ const styles = {
         padding: '12px',
         borderRadius: '8px',
         marginBottom: '24px',
+    },
+    successBox: {
+        background: 'rgba(0, 255, 0, 0.1)',
+        border: '1px solid #00ff00',
+        padding: '16px',
+        borderRadius: '12px',
+        width: '100%',
+        maxWidth: '300px',
     }
 };

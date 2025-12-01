@@ -20,13 +20,22 @@ export async function sendNotification({ fid, title, body, targetUrl }: SendNoti
         // Not: Neynar'ın managed notification endpoint'i farklı olabilir, dökümana göre güncellenmeli.
         // Şimdilik standart POST yapısı kullanıyoruz.
 
+        // Neynar Managed Notifications Endpoint
+        // Docs: https://docs.neynar.com/reference/publish-frame-notifications
+
+        const uuid = crypto.randomUUID();
+
         const response = await axios.post(
-            `${NEYNAR_API_BASE}/farcaster/frame/validate`, // Placeholder endpoint, gerçek endpoint'i kontrol etmeliyiz
+            `${NEYNAR_API_BASE}/farcaster/frame/notifications`,
             {
-                fid,
-                title,
-                body,
-                target_url: targetUrl
+                uuid,
+                sender_gid: 0, // Developer managed notification
+                recipient_fids: [fid],
+                notification: {
+                    title,
+                    body,
+                    target_url: targetUrl
+                }
             },
             {
                 headers: {
@@ -36,7 +45,7 @@ export async function sendNotification({ fid, title, body, targetUrl }: SendNoti
             }
         );
 
-        console.log(`✅ Notification sent to FID ${fid}`);
+        console.log(`✅ Notification sent to FID ${fid}, UUID: ${uuid}`);
         return true;
     } catch (error) {
         console.error('❌ Failed to send notification:', error);

@@ -15,23 +15,30 @@ export async function renderConstellationSVG(
     config: RenderConfig
 ): Promise<string> {
     // PFP'leri base64'e çevir
-    const pfpDataPromises = nodes.map(async (node) => {
+    // PFP'leri base64'e çevir (Rate limit önlemek için sıralı ve gecikmeli)
+    const pfpData: string[] = [];
+
+    for (const node of nodes) {
         try {
+            // Imgur rate limit'e takılmamak için her istek arasında 200ms bekle
+            await new Promise(resolve => setTimeout(resolve, 200));
+
             const response = await axios.get(node.pfpUrl, {
                 responseType: 'arraybuffer',
-                timeout: 10000
+                timeout: 10000,
+                headers: {
+                    'User-Agent': 'FarcasterConstellation/1.0'
+                }
             });
             const base64 = Buffer.from(response.data).toString('base64');
             const mimeType = response.headers['content-type'] || 'image/png';
-            return `data:${mimeType};base64,${base64}`;
+            pfpData.push(`data:${mimeType};base64,${base64}`);
         } catch (error) {
             console.error(`Failed to load PFP for ${node.username}:`, error);
             // Fallback placeholder
-            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMzMzMyIvPjwvc3ZnPg==';
+            pfpData.push('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMzMzMyIvPjwvc3ZnPg==');
         }
-    });
-
-    const pfpData = await Promise.all(pfpDataPromises);
+    }
 
     // SVG başlangıcı
     let svg = `<?xml version="1.0" encoding="UTF-8"?>
