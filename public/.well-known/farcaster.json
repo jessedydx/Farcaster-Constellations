@@ -1,18 +1,18 @@
 {
     "accountAssociation": {
-        "header": "PLACEHOLDER",
-        "payload": "PLACEHOLDER",
-        "signature": "PLACEHOLDER"
+        "header": "eyJmaWQiOjMyODk5NywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDk5OGY5MjI5ZjQxOTAzQjM1N2ZGQURmNjI1MWNkODExNzNBOTEwMjMifQ",
+        "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItY29uc3RlbGxhdGlvbnMtdzQyNS52ZXJjZWwuYXBwIn0",
+        "signature": "kGDiT2k7ymHCccJ2Yv6841H+5Xyfm8OLTZecAxPFQbhNoR4M5wOSAqjb9lzxSz/O8F+k9NnIDdT2UYVYlY2RNBs="
     },
     "miniapp": {
         "version": "1",
         "name": "Farcaster Constellation NFT",
-        "iconUrl": "https://your-domain.vercel.app/icon.png",
-        "homeUrl": "https://your-domain.vercel.app",
-        "imageUrl": "https://your-domain.vercel.app/preview.png",
+        "iconUrl": "https://farcaster-constellations-w425.vercel.app/icon.png",
+        "homeUrl": "https://farcaster-constellations-w425.vercel.app",
+        "imageUrl": "https://farcaster-constellations-w425.vercel.app/preview.png",
         "buttonTitle": "Create Your Constellation",
-        "splashImageUrl": "https://your-domain.vercel.app/splash.png",
+        "splashImageUrl": "https://farcaster-constellations-w425.vercel.app/splash.png",
         "splashBackgroundColor": "#1a0a2e",
-        "webhookUrl": "https://your-domain.vercel.app/api/webhook"
+        "webhookUrl": "https://farcaster-constellations-w425.vercel.app/api/webhook"
     }
 }
