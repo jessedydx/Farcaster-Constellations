@@ -91,10 +91,13 @@ export async function generateConstellationImage(
     const composites: sharp.OverlayOptions[] = [];
 
     // Combine central user and interactions
+    // Ensure central user is always first and has a valid PFP or fallback
     const allUsers = [centralUser, ...interactions];
 
     // Limit to available star slots
     const usersToRender = allUsers.slice(0, STAR_COORDINATES.length);
+
+    console.log(`Rendering ${usersToRender.length} users. Central: ${centralUser.username}`);
 
     for (let i = 0; i < usersToRender.length; i++) {
         const user = usersToRender[i];
@@ -107,7 +110,23 @@ export async function generateConstellationImage(
         const y = Math.round(height * coord.y) - Math.round(size / 2);
 
         // Fetch and process user PFP
-        const pfpBuffer = await fetchImage(user.pfpUrl);
+        console.log(`Fetching PFP for ${user.username} at index ${i}`);
+        let pfpBuffer: Buffer;
+        try {
+            pfpBuffer = await fetchImage(user.pfpUrl);
+        } catch (e) {
+            console.error(`Failed to fetch PFP for ${user.username}, using fallback.`);
+            // Use a colorful fallback instead of gray
+            pfpBuffer = await sharp({
+                create: {
+                    width: 100,
+                    height: 100,
+                    channels: 4,
+                    background: { r: 100, g: 0, b: 255, alpha: 1 } // Purple fallback
+                }
+            }).png().toBuffer();
+        }
+
         const circularPfp = await createCircularImage(pfpBuffer, size);
 
         composites.push({

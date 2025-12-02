@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             message: 'Constellation created! Ready to mint.',
-            imageUrl: imageUpload.gatewayUrl,
-            metadataUrl: `https://ipfs.io/ipfs/${metadataHash}`,
+            imageUrl: imageUpload.pinataUrl,
+            metadataUrl: `https://gateway.pinata.cloud/ipfs/${metadataHash}`,
             tokenURI: tokenURI,
             fid: fid,
             contractAddress: CONTRACT_ADDRESS,
