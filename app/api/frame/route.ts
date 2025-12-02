@@ -29,6 +29,10 @@ export async function POST(request: NextRequest) {
 
         // 1. Get User Info
         const centralUser = await getUserInfo(fid);
+        // Fallback if PFP is missing
+        if (!centralUser.pfpUrl) {
+            centralUser.pfpUrl = 'https://warpcast.com/avatar.png'; // Generic fallback or handle in image gen
+        }
         console.log(`✅ User: @${centralUser.username}`);
 
         // 2. Analyze Interactions

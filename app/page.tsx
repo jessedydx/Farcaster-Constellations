@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { injected } from 'wagmi/connectors';
 import { parseEther } from 'viem';
 
 // NFT Contract ABI (Sadece mint fonksiyonu için)
@@ -32,7 +31,7 @@ export default function Home() {
 
     // Wagmi Hooks
     const { address, isConnected } = useAccount();
-    const { connect } = useConnect();
+    const { connectors, connect } = useConnect();
     const { writeContract, data: hash, error: mintError, isPending: isMintPending } = useWriteContract();
     const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
         hash,
@@ -45,7 +44,10 @@ export default function Home() {
             setIsSDKLoaded(true);
 
             // Otomatik cüzdan bağlantısı dene (Farcaster içinde)
-            connect({ connector: injected() });
+            const farcasterConnector = connectors.find(c => c.id === 'farcaster') || connectors[0];
+            if (farcasterConnector) {
+                connect({ connector: farcasterConnector });
+            }
         };
         if (sdk && !isSDKLoaded) {
             load();
@@ -93,7 +95,10 @@ export default function Home() {
 
     const mintNFT = async () => {
         if (!isConnected || !address) {
-            connect({ connector: injected() });
+            const farcasterConnector = connectors.find(c => c.id === 'farcaster') || connectors[0];
+            if (farcasterConnector) {
+                connect({ connector: farcasterConnector });
+            }
             return;
         }
 
