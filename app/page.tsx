@@ -99,9 +99,17 @@ export default function Home() {
 
     const mintNFT = async () => {
         if (!isConnected || !address) {
-            const farcasterConnector = connectors.find(c => c.id === 'farcaster') || connectors[0];
+            const farcasterConnector = connectors.find(c => c.id === 'farcaster');
             if (farcasterConnector) {
                 connect({ connector: farcasterConnector });
+            } else {
+                // If we are in a frame but connector is missing, something is wrong with the environment or SDK
+                if (context?.user?.fid) {
+                    alert("Farcaster wallet not detected. Please try reloading.");
+                } else {
+                    // Fallback for testing outside of frame (if any other connectors existed)
+                    if (connectors.length > 0) connect({ connector: connectors[0] });
+                }
             }
             return;
         }

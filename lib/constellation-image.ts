@@ -99,43 +99,68 @@ export async function generateConstellationImage(
 
     console.log(`Rendering ${usersToRender.length} users. Central: ${centralUser.username}`);
 
-    for (let i = 0; i < usersToRender.length; i++) {
-        const user = usersToRender[i];
-        const coord = STAR_COORDINATES[i];
+    // Separate central user (index 0) from interactions
+    const centralUserNode = usersToRender[0];
+    const interactionNodes = usersToRender.slice(1);
 
-        // Calculate actual pixel position
-        // The coordinates are for the CENTER of the star
+    // 1. Render Interactions (Background layers)
+    for (let i = 0; i < interactionNodes.length; i++) {
+        const user = interactionNodes[i];
+        // Interactions start at index 1 in STAR_COORDINATES
+        const coord = STAR_COORDINATES[i + 1];
+
+        if (!coord) continue;
+
         const size = Math.round(Math.min(width, height) * coord.size);
         const x = Math.round(width * coord.x) - Math.round(size / 2);
         const y = Math.round(height * coord.y) - Math.round(size / 2);
 
-        // Fetch and process user PFP
-        console.log(`Fetching PFP for ${user.username} at index ${i}`);
+        console.log(`Fetching PFP for interaction ${user.username} (Index ${i + 1})`);
         let pfpBuffer: Buffer;
         try {
             if (!user.pfpUrl) throw new Error('No PFP URL');
             pfpBuffer = await fetchImage(user.pfpUrl);
         } catch (e) {
-            console.error(`Failed to fetch PFP for ${user.username}, using fallback.`);
-            // Use a robust pixel-based fallback (purple square)
-            // SVG fallback might fail if librsvg is not present
             pfpBuffer = await sharp({
                 create: {
                     width: 100,
                     height: 100,
                     channels: 4,
-                    background: { r: 124, g: 58, b: 237, alpha: 1 } // #7c3aed (Purple)
+                    background: { r: 124, g: 58, b: 237, alpha: 1 }
                 }
             }).png().toBuffer();
         }
 
         const circularPfp = await createCircularImage(pfpBuffer, size);
+        composites.push({ input: circularPfp, top: y, left: x });
+    }
 
-        composites.push({
-            input: circularPfp,
-            top: y,
-            left: x,
-        });
+    // 2. Render Central User (Top layer)
+    if (centralUserNode) {
+        const coord = STAR_COORDINATES[0]; // Center star
+        const size = Math.round(Math.min(width, height) * coord.size);
+        const x = Math.round(width * coord.x) - Math.round(size / 2);
+        const y = Math.round(height * coord.y) - Math.round(size / 2);
+
+        console.log(`Fetching PFP for CENTRAL USER ${centralUserNode.username}`);
+        let pfpBuffer: Buffer;
+        try {
+            if (!centralUserNode.pfpUrl) throw new Error('No PFP URL');
+            pfpBuffer = await fetchImage(centralUserNode.pfpUrl);
+        } catch (e) {
+            console.error('Failed to fetch Central User PFP, using fallback');
+            pfpBuffer = await sharp({
+                create: {
+                    width: 100,
+                    height: 100,
+                    channels: 4,
+                    background: { r: 255, g: 215, b: 0, alpha: 1 } // Gold for center
+                }
+            }).png().toBuffer();
+        }
+
+        const circularPfp = await createCircularImage(pfpBuffer, size);
+        composites.push({ input: circularPfp, top: y, left: x });
     }
 
     // Composite all images onto the background
