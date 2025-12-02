@@ -52,6 +52,48 @@ export async function uploadSVGToIPFS(svgContent: string, filename: string): Pro
     }
 }
 
+// PNG Buffer'ı IPFS'e yükle
+export async function uploadImageToIPFS(imageBuffer: Buffer, filename: string): Promise<IPFSUploadResult> {
+    try {
+        const formData = new FormData();
+        const blob = new Blob([new Uint8Array(imageBuffer)], { type: 'image/png' });
+        formData.append('file', blob, filename);
+
+        const metadata = JSON.stringify({
+            name: filename,
+            keyvalues: {
+                type: 'farcaster-constellation-png',
+                createdAt: new Date().toISOString()
+            }
+        });
+        formData.append('pinataMetadata', metadata);
+
+        const response = await axios.post(
+            `${PINATA_API_URL}/pinning/pinFileToIPFS`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'pinata_api_key': PINATA_API_KEY,
+                    'pinata_secret_api_key': PINATA_SECRET_KEY
+                },
+                maxBodyLength: Infinity
+            }
+        );
+
+        const ipfsHash = response.data.IpfsHash;
+
+        return {
+            ipfsHash,
+            pinataUrl: `https://gateway.pinata.cloud/ipfs/${ipfsHash}`,
+            gatewayUrl: `https://ipfs.io/ipfs/${ipfsHash}`
+        };
+    } catch (error) {
+        console.error('IPFS upload error:', error);
+        throw new Error('Failed to upload Image to IPFS');
+    }
+}
+
 // JSON metadata'yı IPFS'e yükle
 export async function uploadJSONToIPFS(jsonData: any, filename: string): Promise<IPFSUploadResult> {
     try {
