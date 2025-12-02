@@ -44,9 +44,13 @@ export default function Home() {
             setIsSDKLoaded(true);
 
             // Otomatik cüzdan bağlantısı dene (Farcaster içinde)
-            const farcasterConnector = connectors.find(c => c.id === 'farcaster') || connectors[0];
+            const farcasterConnector = connectors.find(c => c.id === 'farcaster');
             if (farcasterConnector) {
+                console.log("🔌 Connecting with Farcaster Frame connector...");
                 connect({ connector: farcasterConnector });
+            } else {
+                console.warn("⚠️ Farcaster connector not found, falling back to first available.");
+                if (connectors.length > 0) connect({ connector: connectors[0] });
             }
         };
         if (sdk && !isSDKLoaded) {

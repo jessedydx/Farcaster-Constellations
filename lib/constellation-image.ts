@@ -117,15 +117,16 @@ export async function generateConstellationImage(
             pfpBuffer = await fetchImage(user.pfpUrl);
         } catch (e) {
             console.error(`Failed to fetch PFP for ${user.username}, using fallback.`);
-            // Use a colorful fallback with initial
-            const initial = user.username ? user.username[0].toUpperCase() : '?';
-            const svgFallback = `
-                <svg width="100" height="100" viewBox="0 0 100 100">
-                    <rect width="100" height="100" fill="#7c3aed" />
-                    <text x="50" y="50" font-family="Arial" font-size="50" fill="white" text-anchor="middle" dy=".3em">${initial}</text>
-                </svg>
-            `;
-            pfpBuffer = await sharp(Buffer.from(svgFallback)).png().toBuffer();
+            // Use a robust pixel-based fallback (purple square)
+            // SVG fallback might fail if librsvg is not present
+            pfpBuffer = await sharp({
+                create: {
+                    width: 100,
+                    height: 100,
+                    channels: 4,
+                    background: { r: 124, g: 58, b: 237, alpha: 1 } // #7c3aed (Purple)
+                }
+            }).png().toBuffer();
         }
 
         const circularPfp = await createCircularImage(pfpBuffer, size);
