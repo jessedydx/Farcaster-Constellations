@@ -43,29 +43,35 @@ interface UserNode {
     score?: number;
 }
 
-async function fetchImage(url: string): Promise<Buffer> {
-    try {
-        const response = await axios.get(url, {
-            responseType: 'arraybuffer',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': '*/*'
-            },
-            timeout: 8000 // 8 second timeout
-        });
+async function fetchImage(url: string, retries = 3): Promise<Buffer> {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+                }
+            });
 
-        // Ensure we convert whatever we got (GIF, JPG, etc.) to a static PNG buffer immediately
-        // This handles animated GIFs by taking the first frame
-        return await sharp(Buffer.from(response.data))
-            .png()
-            .toBuffer();
-    } catch (error: any) {
-        console.error(`Failed to fetch image from ${url}: ${error.message}`);
-        if (error.response) {
-            console.error(`Status: ${error.response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            // Ensure we convert whatever we got (GIF, JPG, etc.) to a static PNG buffer immediately
+            return await sharp(buffer)
+                .png()
+                .toBuffer();
+        } catch (error: any) {
+            console.warn(`Attempt ${i + 1} failed to fetch image from ${url}: ${error.message}`);
+            if (i === retries - 1) throw error; // Throw on last attempt
+            // Wait a bit before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
         }
-        throw error; // Rethrow to let caller handle fallback
     }
+    throw new Error(`Failed to fetch image from ${url} after ${retries} attempts`);
 }
 
 async function createCircularImage(imageBuffer: Buffer, size: number): Promise<Buffer> {
