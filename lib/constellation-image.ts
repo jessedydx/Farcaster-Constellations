@@ -48,10 +48,10 @@ async function fetchImage(url: string): Promise<Buffer> {
         const response = await axios.get(url, {
             responseType: 'arraybuffer',
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
-                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': '*/*'
             },
-            timeout: 5000 // 5 second timeout
+            timeout: 8000 // 8 second timeout
         });
 
         // Ensure we convert whatever we got (GIF, JPG, etc.) to a static PNG buffer immediately
@@ -127,14 +127,22 @@ export async function generateConstellationImage(
             if (!user.pfpUrl) throw new Error('No PFP URL');
             pfpBuffer = await fetchImage(user.pfpUrl);
         } catch (e) {
+            // Fallback: Purple background with Initial
+            const initial = user.username ? user.username[0].toUpperCase() : '?';
             pfpBuffer = await sharp({
                 create: {
                     width: 100,
                     height: 100,
                     channels: 4,
-                    background: { r: 124, g: 58, b: 237, alpha: 1 }
+                    background: { r: 124, g: 58, b: 237, alpha: 1 } // Purple
                 }
-            }).png().toBuffer();
+            })
+                .composite([{
+                    input: Buffer.from(`<svg><text x="50%" y="50%" dy="0.35em" text-anchor="middle" font-family="Arial" font-size="60" fill="white">${initial}</text></svg>`),
+                    blend: 'over'
+                }])
+                .png()
+                .toBuffer();
         }
 
         const circularPfp = await createCircularImage(pfpBuffer, size);
@@ -154,15 +162,23 @@ export async function generateConstellationImage(
             if (!centralUserNode.pfpUrl) throw new Error('No PFP URL');
             pfpBuffer = await fetchImage(centralUserNode.pfpUrl);
         } catch (e) {
-            console.error('Failed to fetch Central User PFP, using fallback');
+            console.error(`Failed to fetch Central User PFP, using fallback.`);
+            // Fallback: Gold background with Initial
+            const initial = centralUserNode.username ? centralUserNode.username[0].toUpperCase() : '?';
             pfpBuffer = await sharp({
                 create: {
                     width: 100,
                     height: 100,
                     channels: 4,
-                    background: { r: 255, g: 215, b: 0, alpha: 1 } // Gold for center
+                    background: { r: 255, g: 215, b: 0, alpha: 1 } // Gold
                 }
-            }).png().toBuffer();
+            })
+                .composite([{
+                    input: Buffer.from(`<svg><text x="50%" y="50%" dy="0.35em" text-anchor="middle" font-family="Arial" font-size="60" fill="white">${initial}</text></svg>`),
+                    blend: 'over'
+                }])
+                .png()
+                .toBuffer();
         }
 
         const circularPfp = await createCircularImage(pfpBuffer, size);
