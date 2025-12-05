@@ -241,7 +241,11 @@ export default function Home() {
                                         </a>
                                         <button
                                             onClick={() => {
-                                                const text = encodeURIComponent("Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨");
+                                                const topUsers = constellationData.topInteractions
+                                                    ? constellationData.topInteractions.map((u: string) => `@${u}`).join(' ')
+                                                    : '';
+
+                                                const text = encodeURIComponent(`Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨\n\n${topUsers}`);
                                                 const miniAppUrl = encodeURIComponent("https://farcaster.xyz/miniapps/1QWOndscTLyV/farcaster-constellation-nft");
                                                 const imageUrl = encodeURIComponent(constellationData.imageUrl);
 

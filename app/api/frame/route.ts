@@ -102,7 +102,8 @@ export async function POST(request: NextRequest) {
                 recipient: verifiedAddress || '{{USER_WALLET_ADDRESS}}',
                 fid: fid,
                 tokenURI: tokenURI
-            }
+            },
+            topInteractions: connectionsWithScores.slice(0, 5).map(u => u.username)
         });
 
     } catch (error: any) {
