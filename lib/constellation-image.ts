@@ -43,35 +43,34 @@ interface UserNode {
     score?: number;
 }
 
-async function fetchImage(url: string, retries = 3): Promise<Buffer> {
-    for (let i = 0; i < retries; i++) {
+async function fetchImage(url: string): Promise<Buffer> {
+    // Strategy 1: Simple Fetch (Works for most Farcaster/Cast CDN images)
+    try {
+        const response = await axios.get(url, {
+            responseType: 'arraybuffer',
+            timeout: 5000
+        });
+        return await sharp(Buffer.from(response.data)).png().toBuffer();
+    } catch (simpleError: any) {
+        // Strategy 2: Browser Mode (Works for Imgur, Cloudflare, etc.)
+        // Only try this if the first attempt failed (e.g. 403 Forbidden)
+        console.warn(`Simple fetch failed for ${url} (${simpleError.message}), trying browser mode...`);
+
         try {
-            const response = await fetch(url, {
+            const response = await axios.get(url, {
+                responseType: 'arraybuffer',
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
-                }
+                },
+                timeout: 8000
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const arrayBuffer = await response.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            // Ensure we convert whatever we got (GIF, JPG, etc.) to a static PNG buffer immediately
-            return await sharp(buffer)
-                .png()
-                .toBuffer();
-        } catch (error: any) {
-            console.warn(`Attempt ${i + 1} failed to fetch image from ${url}: ${error.message}`);
-            if (i === retries - 1) throw error; // Throw on last attempt
-            // Wait a bit before retrying (exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+            return await sharp(Buffer.from(response.data)).png().toBuffer();
+        } catch (browserError: any) {
+            console.error(`All fetch attempts failed for ${url}: ${browserError.message}`);
+            throw browserError; // Trigger the fallback (Initials)
         }
     }
-    throw new Error(`Failed to fetch image from ${url} after ${retries} attempts`);
 }
 
 async function createCircularImage(imageBuffer: Buffer, size: number): Promise<Buffer> {
