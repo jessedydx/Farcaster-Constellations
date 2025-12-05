@@ -9,7 +9,8 @@ import { parseEther } from 'viem';
 const NFT_ABI = [
     {
         "inputs": [
-            { "internalType": "address", "name": "_to", "type": "address" },
+            { "internalType": "address", "name": "recipient", "type": "address" },
+            { "internalType": "uint256", "name": "fid", "type": "uint256" },
             { "internalType": "string", "name": "_tokenURI", "type": "string" }
         ],
         "name": "mintConstellation",
@@ -124,7 +125,7 @@ export default function Home() {
                 address: constellationData.contractAddress as `0x${string}`,
                 abi: NFT_ABI,
                 functionName: 'mintConstellation',
-                args: [address, constellationData.tokenURI],
+                args: [address, context?.user?.fid || 0, constellationData.tokenURI],
             });
         } catch (err: any) {
             console.error("Mint error:", err);

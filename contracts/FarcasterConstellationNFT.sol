@@ -37,27 +37,27 @@ contract FarcasterConstellationNFT is ERC721, ERC721URIStorage, Ownable {
      * @dev Mint a new constellation NFT
      * @param recipient Address to receive the NFT
      * @param fid Farcaster ID of the central user
-     * @param tokenURI IPFS URI containing metadata
+     * @param _tokenURI IPFS URI containing metadata
      */
     function mintConstellation(
         address recipient,
         uint256 fid,
-        string memory tokenURI
-    ) public onlyOwner returns (uint256) {
-        require(fidToTokenId[fid] == 0, "FID already has a constellation");
+        string memory _tokenURI
+    ) public returns (uint256) {
+        // require(fidToTokenId[fid] == 0, "FID already has a constellation"); // REMOVED: Allow multiple mints
         require(recipient != address(0), "Invalid recipient");
         
         uint256 tokenId = _tokenIdCounter;
         _tokenIdCounter++;
         
         _safeMint(recipient, tokenId);
-        _setTokenURI(tokenId, tokenURI);
+        _setTokenURI(tokenId, _tokenURI);
         
-        fidToTokenId[fid] = tokenId;
+        // fidToTokenId[fid] = tokenId; // REMOVED: 1-to-1 mapping no longer valid
         tokenIdToFid[tokenId] = fid;
         mintTimestamp[tokenId] = block.timestamp;
         
-        emit ConstellationMinted(tokenId, fid, recipient, tokenURI);
+        emit ConstellationMinted(tokenId, fid, recipient, _tokenURI);
         
         return tokenId;
     }
@@ -76,22 +76,26 @@ contract FarcasterConstellationNFT is ERC721, ERC721URIStorage, Ownable {
     }
     
     /**
-     * @dev Get token ID by FID
+     * @dev Get token ID by FID (Deprecated: Users can now have multiple tokens)
      * @param fid Farcaster ID
      */
+    /*
     function getTokenByFid(uint256 fid) public view returns (uint256) {
         uint256 tokenId = fidToTokenId[fid];
         require(tokenId != 0, "No constellation for this FID");
         return tokenId;
     }
+    */
     
     /**
-     * @dev Check if FID has a constellation
+     * @dev Check if FID has a constellation (Deprecated)
      * @param fid Farcaster ID
      */
+    /*
     function hasConstellation(uint256 fid) public view returns (bool) {
         return fidToTokenId[fid] != 0;
     }
+    */
     
     /**
      * @dev Get total minted constellations
