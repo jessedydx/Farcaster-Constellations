@@ -235,10 +235,26 @@ export default function Home() {
                                             href={`https://basescan.org/tx/${hash}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            style={{ color: '#00ffff', textDecoration: 'underline' }}
+                                            style={{ color: '#00ffff', textDecoration: 'underline', display: 'block', marginBottom: '12px' }}
                                         >
                                             View on BaseScan
                                         </a>
+                                        <button
+                                            onClick={() => {
+                                                const text = encodeURIComponent("Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨");
+                                                const embedUrl = encodeURIComponent(`${window.location.origin}/api/frame`);
+                                                // We can also try to embed the image directly if supported, but usually embedding the frame is better.
+                                                // However, user asked for "this same image".
+                                                // Let's try to embed the image URL as well if possible, or just the frame which shows it.
+                                                // For now, let's embed the Frame URL which is the standard way to share a Mini App.
+                                                // To show the specific image, the Frame OG image should be dynamic.
+
+                                                sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embedUrl}`);
+                                            }}
+                                            style={{ ...styles.button, background: '#7c65c1', marginTop: '8px' }}
+                                        >
+                                            📢 Share on Warpcast
+                                        </button>
                                     </div>
                                 )}
                             </div>
