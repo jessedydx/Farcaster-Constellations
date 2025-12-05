@@ -45,10 +45,25 @@ interface UserNode {
 
 async function fetchImage(url: string): Promise<Buffer> {
     try {
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-        return Buffer.from(response.data);
-    } catch (error) {
-        console.error(`Failed to fetch image from ${url}`, error);
+        const response = await axios.get(url, {
+            responseType: 'arraybuffer',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+            },
+            timeout: 5000 // 5 second timeout
+        });
+
+        // Ensure we convert whatever we got (GIF, JPG, etc.) to a static PNG buffer immediately
+        // This handles animated GIFs by taking the first frame
+        return await sharp(Buffer.from(response.data))
+            .png()
+            .toBuffer();
+    } catch (error: any) {
+        console.error(`Failed to fetch image from ${url}: ${error.message}`);
+        if (error.response) {
+            console.error(`Status: ${error.response.status}`);
+        }
         throw error; // Rethrow to let caller handle fallback
     }
 }
