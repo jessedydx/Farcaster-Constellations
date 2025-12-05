@@ -242,14 +242,11 @@ export default function Home() {
                                         <button
                                             onClick={() => {
                                                 const text = encodeURIComponent("Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨");
-                                                const embedUrl = encodeURIComponent(`${window.location.origin}/api/frame`);
-                                                // We can also try to embed the image directly if supported, but usually embedding the frame is better.
-                                                // However, user asked for "this same image".
-                                                // Let's try to embed the image URL as well if possible, or just the frame which shows it.
-                                                // For now, let's embed the Frame URL which is the standard way to share a Mini App.
-                                                // To show the specific image, the Frame OG image should be dynamic.
+                                                const miniAppUrl = encodeURIComponent("https://farcaster.xyz/miniapps/1QWOndscTLyV/farcaster-constellation-nft");
+                                                const imageUrl = encodeURIComponent(constellationData.imageUrl);
 
-                                                sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embedUrl}`);
+                                                // Order: Image first, then Mini App Link
+                                                sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${text}&embeds[]=${imageUrl}&embeds[]=${miniAppUrl}`);
                                             }}
                                             style={{ ...styles.button, background: '#7c65c1', marginTop: '8px' }}
                                         >
