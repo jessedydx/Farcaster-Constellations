@@ -6,7 +6,8 @@ import { uploadSVGToIPFS, uploadImageToIPFS, createAndUploadNFTMetadata } from '
 import { sendNotification } from '@/lib/notifications';
 import { generateConstellationImage } from '@/lib/constellation-image';
 
-const CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS!;
+// Hard-coded V2 contract address
+const CONTRACT_ADDRESS = '0xC6cC93716CE39C26996425217B909f3E725F5850';
 
 console.log('🔧 Using contract address:', CONTRACT_ADDRESS);
 
