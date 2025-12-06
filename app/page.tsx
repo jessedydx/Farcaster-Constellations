@@ -42,7 +42,18 @@ export default function Home() {
         const load = async () => {
             setContext(await sdk.context);
             sdk.actions.ready();
-            setIsSDKLoaded(true);
+
+            // Show "Add Mini App" popup automatically when app opens
+            // Only show once per session
+            const hasShownPopup = sessionStorage.getItem('addFramePopupShown');
+            if (!hasShownPopup && context?.user) {
+                try {
+                    await sdk.actions.addFrame();
+                    sessionStorage.setItem('addFramePopupShown', 'true');
+                } catch (error) {
+                    console.log('User dismissed add frame popup or already added');
+                }
+            }
 
             // Otomatik cüzdan bağlantısı dene (Farcaster içinde)
             const farcasterConnector = connectors.find(c => c.id === 'farcaster');
