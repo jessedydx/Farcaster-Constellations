@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendNotification } from '@/lib/notifications';
 
-// This endpoint should be called by a cron service (Vercel Cron, GitHub Actions, etc.)
-// Example: Once per month, send reminders to all users who added the mini app
+// This endpoint is called by Vercel Cron once per month
+// Sends reminders to users who have minted NFTs
 
 export async function GET(request: NextRequest) {
     try {
@@ -12,34 +12,53 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // TODO: Get list of users who added the mini app
-        // For now, this is a placeholder
-        // You would need to maintain a database of users who added the app
+        console.log(`📅 Starting monthly reminder cron job...`);
 
-        const users: number[] = []; // Array of FIDs
+        // Note: Neynar doesn't have a direct "get frame users" endpoint
+        // You would need to track users when they mint NFTs
+        // For now, this is a placeholder with an empty array
 
-        console.log(`📅 Sending monthly reminders to ${users.length} users...`);
+        const users: number[] = []; // TODO: Track FIDs when users mint NFTs
+
+        if (users.length === 0) {
+            console.log('⚠️ No users to send reminders to.');
+            return NextResponse.json({
+                success: true,
+                sent: 0,
+                total: 0,
+                message: 'No users tracked yet. Users will be added when they mint NFTs.'
+            });
+        }
+
+        console.log(`📤 Sending monthly reminders to ${users.length} users...`);
 
         let successCount = 0;
         for (const fid of users) {
-            const success = await sendNotification({
-                fid,
-                title: 'Your New Constellation is Ready! 🌌',
-                body: 'Create your updated social galaxy map and mint a new NFT!',
-                targetUrl: 'https://farcaster-constellations-w425.vercel.app'
-            });
-            if (success) successCount++;
+            try {
+                const success = await sendNotification({
+                    fid,
+                    title: 'Your New Constellation is Ready! 🌌',
+                    body: 'Create your updated social galaxy map and mint a new NFT!',
+                    targetUrl: 'https://farcaster-constellations-w425.vercel.app'
+                });
+                if (success) successCount++;
+
+                // Rate limit: wait 100ms between notifications
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (error) {
+                console.error(`Failed to send to FID ${fid}:`, error);
+            }
         }
 
-        console.log(`✅ Sent ${successCount}/${users.length} monthly reminders`);
+        console.log(`✅ Sent ${success Count}/${users.length} monthly reminders`);
 
-        return NextResponse.json({
-            success: true,
-            sent: successCount,
-            total: users.length
-        });
-    } catch (error: any) {
-        console.error('Monthly reminder cron error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    return NextResponse.json({
+        success: true,
+        sent: successCount,
+        total: users.length
+    });
+} catch (error: any) {
+    console.error('Monthly reminder cron error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+}
 }
