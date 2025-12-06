@@ -43,8 +43,8 @@ export async function uploadSVGToIPFS(svgContent: string, filename: string): Pro
 
         return {
             ipfsHash,
-            // Use Cloudflare IPFS gateway (no rate limits, better for Warpcast embeds)
-            pinataUrl: `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`,
+            // Use ipfs.io gateway (most reliable, works everywhere)
+            pinataUrl: `https://ipfs.io/ipfs/${ipfsHash}`,
             gatewayUrl: `https://ipfs.io/ipfs/${ipfsHash}`
         };
     } catch (error) {
@@ -86,8 +86,8 @@ export async function uploadImageToIPFS(imageBuffer: Buffer, filename: string): 
 
         return {
             ipfsHash,
-            // Use Cloudflare IPFS gateway (no rate limits, better for Warpcast embeds)
-            pinataUrl: `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`,
+            // Use ipfs.io gateway (most reliable, works everywhere)
+            pinataUrl: `https://ipfs.io/ipfs/${ipfsHash}`,
             gatewayUrl: `https://ipfs.io/ipfs/${ipfsHash}`
         };
     } catch (error) {
