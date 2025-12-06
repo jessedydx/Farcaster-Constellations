@@ -85,6 +85,28 @@ export default function Home() {
         }
     }, [context, isSDKLoaded]);
 
+    // Send notification when NFT mint is confirmed
+    useEffect(() => {
+        const sendMintNotification = async () => {
+            if (isConfirmed && context?.user?.fid) {
+                try {
+                    await fetch('/api/notify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fid: context.user.fid,
+                            type: 'mint_success'
+                        })
+                    });
+                    console.log('✅ Mint notification sent');
+                } catch (error) {
+                    console.error('Failed to send notification:', error);
+                }
+            }
+        };
+        sendMintNotification();
+    }, [isConfirmed, context]);
+
     const addToFarcaster = useCallback(async () => {
         try {
             await sdk.actions.addFrame();
