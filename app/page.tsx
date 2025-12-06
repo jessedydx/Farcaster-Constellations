@@ -40,35 +40,50 @@ export default function Home() {
 
     useEffect(() => {
         const load = async () => {
-            setContext(await sdk.context);
+            const ctx = await sdk.context;
+            setContext(ctx);
             sdk.actions.ready();
-
-            // Show "Add Mini App" popup automatically when app opens
-            // Only show once per session
-            const hasShownPopup = sessionStorage.getItem('addFramePopupShown');
-            if (!hasShownPopup && context?.user) {
-                try {
-                    await sdk.actions.addFrame();
-                    sessionStorage.setItem('addFramePopupShown', 'true');
-                } catch (error) {
-                    console.log('User dismissed add frame popup or already added');
-                }
-            }
 
             // Otomatik cüzdan bağlantısı dene (Farcaster içinde)
             const farcasterConnector = connectors.find(c => c.id === 'farcaster');
             if (farcasterConnector) {
                 console.log("🔌 Connecting with Farcaster Frame connector...");
-                connect({ connector: farcasterConnector });
-            } else {
-                console.warn("⚠️ Farcaster connector not found, falling back to first available.");
-                if (connectors.length > 0) connect({ connector: connectors[0] });
+                try {
+                    await connect({ connector: farcasterConnector });
+                    console.log("✅ Farcaster Frame connected successfully");
+                } catch (err) {
+                    console.error("❌ Auto-connect failed:", err);
+                }
             }
         };
         if (sdk && !isSDKLoaded) {
+            setIsSDKLoaded(true);
             load();
         }
-    }, [isSDKLoaded, connect]);
+    }, [isSDKLoaded]);
+
+    // Show Add Mini App popup after context is loaded
+    useEffect(() => {
+        const showAddFramePopup = async () => {
+            const hasShownPopup = sessionStorage.getItem('addFramePopupShown');
+            if (!hasShownPopup && context?.user) {
+                // Small delay to ensure everything is loaded
+                setTimeout(async () => {
+                    try {
+                        await sdk.actions.addFrame();
+                        sessionStorage.setItem('addFramePopupShown', 'true');
+                        console.log('✅ Add frame popup shown');
+                    } catch (error) {
+                        console.log('User dismissed add frame popup or already added');
+                    }
+                }, 500);
+            }
+        };
+
+        if (context?.user && isSDKLoaded) {
+            showAddFramePopup();
+        }
+    }, [context, isSDKLoaded]);
 
     const addToFarcaster = useCallback(async () => {
         try {
