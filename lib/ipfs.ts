@@ -86,7 +86,8 @@ export async function uploadImageToIPFS(imageBuffer: Buffer, filename: string): 
 
         return {
             ipfsHash,
-            pinataUrl: `https://gateway.pinata.cloud/ipfs/${ipfsHash}`,
+            // Use Cloudflare IPFS gateway (no rate limits, better for Warpcast embeds)
+            pinataUrl: `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`,
             gatewayUrl: `https://ipfs.io/ipfs/${ipfsHash}`
         };
     } catch (error) {
