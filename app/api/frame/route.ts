@@ -8,6 +8,8 @@ import { generateConstellationImage } from '@/lib/constellation-image';
 
 const CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS!;
 
+console.log('🔧 Using contract address:', CONTRACT_ADDRESS);
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
