@@ -235,63 +235,42 @@ export default function Home() {
                                         <a
                                             href={`https://basescan.org/tx/${hash}`}
                                             target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ color: '#00ffff', textDecoration: 'underline', display: 'block', marginBottom: '12px' }}
-                                        >
-                                            View on BaseScan
-                                        </a>
-                                        <button
-                                            onClick={() => {
-                                                const topUsers = constellationData.topInteractions
-                                                    ? constellationData.topInteractions.map((u: string) => `@${u}`).join(' ')
-                                                    : '';
-
-                                                const text = encodeURIComponent(`Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨\n\n${topUsers}`);
-                                                const miniAppUrl = encodeURIComponent("https://farcaster.xyz/miniapps/1QWOndscTLyV/farcaster-constellation-nft");
-                                                const imageUrl = encodeURIComponent(constellationData.imageUrl);
-
-                                                // Order: Image first, then Mini App Link
-                                                sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${text}&embeds[]=${imageUrl}&embeds[]=${miniAppUrl}`);
-                                            }}
-                                            style={{ ...styles.button, background: '#7c65c1', marginTop: '8px' }}
-                                        >
-                                            📢 Share on Warpcast
                                         </button>
                                     </div>
                                 )}
-                            </div>
+                        </div>
                         </div>
                     )}
 
-                    {/* Features Grid */}
-                    <div style={styles.grid}>
-                        <div style={styles.card}>
-                            <div style={styles.emoji}>🌐</div>
-                            <h3 style={styles.cardTitle}>Analyze</h3>
-                            <p style={styles.cardText}>
-                                We analyze your last 30 days of Farcaster interactions
-                            </p>
-                        </div>
+                {/* Features Grid */}
+                <div style={styles.grid}>
+                    <div style={styles.card}>
+                        <div style={styles.emoji}>🌐</div>
+                        <h3 style={styles.cardTitle}>Analyze</h3>
+                        <p style={styles.cardText}>
+                            We analyze your last 30 days of Farcaster interactions
+                        </p>
+                    </div>
 
-                        <div style={styles.card}>
-                            <div style={styles.emoji}>✨</div>
-                            <h3 style={styles.cardTitle}>Visualize</h3>
-                            <p style={styles.cardText}>
-                                Your top 20 connections become a cyber-neon constellation
-                            </p>
-                        </div>
+                    <div style={styles.card}>
+                        <div style={styles.emoji}>✨</div>
+                        <h3 style={styles.cardTitle}>Visualize</h3>
+                        <p style={styles.cardText}>
+                            Your top 20 connections become a cyber-neon constellation
+                        </p>
+                    </div>
 
-                        <div style={styles.card}>
-                            <div style={styles.emoji}>🎨</div>
-                            <h3 style={styles.cardTitle}>Mint</h3>
-                            <p style={styles.cardText}>
-                                Mint your unique constellation as an NFT on Base L2
-                            </p>
-                        </div>
+                    <div style={styles.card}>
+                        <div style={styles.emoji}>🎨</div>
+                        <h3 style={styles.cardTitle}>Mint</h3>
+                        <p style={styles.cardText}>
+                            Mint your unique constellation as an NFT on Base L2
+                        </p>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+        </main >
     );
 }
 
