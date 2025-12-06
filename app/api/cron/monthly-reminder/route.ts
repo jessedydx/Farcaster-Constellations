@@ -50,15 +50,15 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        console.log(`✅ Sent ${success Count}/${users.length} monthly reminders`);
+        console.log(`✅ Sent ${successCount}/${users.length} monthly reminders`);
 
-    return NextResponse.json({
-        success: true,
-        sent: successCount,
-        total: users.length
-    });
-} catch (error: any) {
-    console.error('Monthly reminder cron error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-}
+        return NextResponse.json({
+            success: true,
+            sent: successCount,
+            total: users.length
+        });
+    } catch (error: any) {
+        console.error('Monthly reminder cron error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }
