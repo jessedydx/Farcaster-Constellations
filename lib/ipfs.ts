@@ -43,9 +43,9 @@ export async function uploadSVGToIPFS(svgContent: string, filename: string): Pro
 
         return {
             ipfsHash,
-            // Use ipfs.io gateway (most reliable, works everywhere)
-            pinataUrl: `https://ipfs.io/ipfs/${ipfsHash}`,
-            gatewayUrl: `https://ipfs.io/ipfs/${ipfsHash}`
+            // Use Pinata dedicated gateway (fast, reliable, no rate limits)
+            pinataUrl: `https://indigo-voluntary-cardinal-20.mypinata.cloud/ipfs/${ipfsHash}`,
+            gatewayUrl: `https://indigo-voluntary-cardinal-20.mypinata.cloud/ipfs/${ipfsHash}`
         };
     } catch (error) {
         console.error('IPFS upload error:', error);
@@ -86,9 +86,9 @@ export async function uploadImageToIPFS(imageBuffer: Buffer, filename: string): 
 
         return {
             ipfsHash,
-            // Use ipfs.io gateway (most reliable, works everywhere)
-            pinataUrl: `https://ipfs.io/ipfs/${ipfsHash}`,
-            gatewayUrl: `https://ipfs.io/ipfs/${ipfsHash}`
+            // Use Pinata dedicated gateway (fast, reliable, no rate limits)
+            pinataUrl: `https://indigo-voluntary-cardinal-20.mypinata.cloud/ipfs/${ipfsHash}`,
+            gatewayUrl: `https://indigo-voluntary-cardinal-20.mypinata.cloud/ipfs/${ipfsHash}`
         };
     } catch (error) {
         console.error('IPFS upload error:', error);
