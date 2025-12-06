@@ -264,32 +264,8 @@ export default function Home() {
                         </div>
                     )}
 
-                    {/* Features Grid */}
-                    <div style={styles.grid}>
-                        <div style={styles.card}>
-                            <div style={styles.emoji}>🌐</div>
-                            <h3 style={styles.cardTitle}>Analyze</h3>
-                            <p style={styles.cardText}>
-                                We analyze your last 30 days of Farcaster interactions
-                            </p>
-                        </div>
 
-                        <div style={styles.card}>
-                            <div style={styles.emoji}>✨</div>
-                            <h3 style={styles.cardTitle}>Visualize</h3>
-                            <p style={styles.cardText}>
-                                Your top 20 connections become a cyber-neon constellation
-                            </p>
-                        </div>
-
-                        <div style={styles.card}>
-                            <div style={styles.emoji}>🎨</div>
-                            <h3 style={styles.cardTitle}>Mint</h3>
-                            <p style={styles.cardText}>
-                                Mint your unique constellation as an NFT on Base L2
-                            </p>
-                        </div>
-                    </div>
+                    {/* Features section removed */}
                 </div>
             </div>
         </main >
