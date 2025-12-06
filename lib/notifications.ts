@@ -47,8 +47,9 @@ export async function sendNotification({ fid, title, body, targetUrl }: SendNoti
 
         console.log(`✅ Notification sent to FID ${fid}, UUID: ${uuid}`);
         return true;
-    } catch (error) {
-        console.error('❌ Failed to send notification:', error);
+    } catch (error: any) {
+        console.error('❌ Failed to send notification:', error.response?.data || error.message);
+        console.error('Full error:', JSON.stringify(error.response?.data, null, 2));
         return false;
     }
 }
