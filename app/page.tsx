@@ -190,14 +190,7 @@ export default function Home() {
                                             {isLoading ? 'Creating Magic... ✨' : '🚀 Create Constellation'}
                                         </button>
 
-                                        {!isAdded && (
-                                            <button
-                                                onClick={addToFarcaster}
-                                                style={{ ...styles.secondaryButton, marginTop: '12px' }}
-                                            >
-                                                📲 Add to Farcaster
-                                            </button>
-                                        )}
+                                        {/* Add to Farcaster now shown automatically via popup */}
                                     </div>
                                 </>
                             ) : (
