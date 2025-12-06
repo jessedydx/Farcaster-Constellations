@@ -28,9 +28,7 @@ export async function sendNotification({ fid, title, body, targetUrl }: SendNoti
         const response = await axios.post(
             `${NEYNAR_API_BASE}/farcaster/frame/notifications`,
             {
-                uuid,
-                sender_gid: 0, // Developer managed notification
-                recipient_fids: [fid],
+                target_fids: [fid],  // Changed from recipient_fids
                 notification: {
                     title,
                     body,
@@ -49,7 +47,9 @@ export async function sendNotification({ fid, title, body, targetUrl }: SendNoti
         return true;
     } catch (error: any) {
         console.error('❌ Failed to send notification:', error.response?.data || error.message);
-        console.error('Full error:', JSON.stringify(error.response?.data, null, 2));
+        if (error.response?.data?.errors) {
+            console.error('API Errors:', JSON.stringify(error.response.data.errors, null, 2));
+        }
         return false;
     }
 }
