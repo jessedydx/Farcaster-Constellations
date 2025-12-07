@@ -8,6 +8,7 @@ export interface FarcasterUser {
     username: string;
     displayName: string;
     pfpUrl: string;
+    followerCount: number;
 }
 
 export interface Interaction {
@@ -32,7 +33,8 @@ export async function getUserInfo(fid: number): Promise<FarcasterUser> {
             fid: user.fid,
             username: user.username,
             displayName: user.display_name || user.username,
-            pfpUrl: user.pfp_url
+            pfpUrl: user.pfp_url,
+            followerCount: user.follower_count || 0
         };
     } catch (error) {
         console.error('getUserInfo error:', error);
@@ -151,7 +153,8 @@ export async function getBulkUserInfo(fids: number[]): Promise<FarcasterUser[]> 
             fid: user.fid,
             username: user.username,
             displayName: user.display_name || user.username,
-            pfpUrl: user.pfp_url
+            pfpUrl: user.pfp_url,
+            followerCount: user.follower_count || 0
         }));
     } catch (error) {
         console.error('getBulkUserInfo error:', error);

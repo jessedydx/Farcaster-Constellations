@@ -26,6 +26,7 @@ export interface ConstellationRecord {
     tokenId: number | null;
     txHash: string | null;
     mintedAt: number | null;
+    followerCount?: number;
 }
 
 export async function trackConstellation(data: {
@@ -33,6 +34,7 @@ export async function trackConstellation(data: {
     username: string;
     ipfsHash: string;
     imageUrl: string;
+    followerCount?: number;
 }): Promise<void> {
     const key = `constellation:${data.fid}:${Date.now()}`;
 
@@ -148,6 +150,7 @@ export async function getRecentActivity(limit: number = 50): Promise<Constellati
                 tokenId: record.tokenId ? parseInt(record.tokenId) : null,
                 txHash: record.txHash || null,
                 mintedAt: record.mintedAt ? parseInt(record.mintedAt) : null,
+                followerCount: record.followerCount ? parseInt(record.followerCount) : undefined
             });
         }
     }

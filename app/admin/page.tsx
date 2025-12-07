@@ -21,6 +21,7 @@ interface Activity {
     tokenId: number | null;
     txHash: string | null;
     mintedAt: number | null;
+    followerCount?: number;
 }
 
 export default function AdminDashboard() {
@@ -169,6 +170,7 @@ export default function AdminDashboard() {
                             <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>FID</th>
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Username</th>
+                                <th style={{ padding: '15px', textAlign: 'center', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Followers</th>
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Created</th>
                                 <th style={{ padding: '15px', textAlign: 'center', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Status</th>
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Last Activity</th>
