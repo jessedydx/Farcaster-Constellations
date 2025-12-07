@@ -88,11 +88,20 @@ export default function Home() {
 
     // Send notification when NFT mint is confirmed
     useEffect(() => {
+        console.log('🔍 Mint useEffect triggered:', {
+            isConfirmed,
+            hasFid: !!context?.user?.fid,
+            fid: context?.user?.fid,
+            hasHash: !!hash,
+            hash: hash?.slice(0, 10) + '...'
+        });
+
         const sendMintNotification = async () => {
             if (isConfirmed && context?.user?.fid && hash) {
+                console.log('🚀 All conditions met! Tracking mint...');
                 try {
                     // Track mint in database
-                    await fetch('/api/track-mint', {
+                    const trackResponse = await fetch('/api/track-mint', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -100,7 +109,8 @@ export default function Home() {
                             txHash: hash
                         })
                     });
-                    console.log('✅ Mint tracked in database');
+                    const trackData = await trackResponse.json();
+                    console.log('✅ Mint tracked in database:', trackData);
 
                     // Send notification
                     await fetch('/api/notify', {
@@ -113,8 +123,10 @@ export default function Home() {
                     });
                     console.log('✅ Mint notification sent');
                 } catch (error) {
-                    console.error('Failed to send notification:', error);
+                    console.error('❌ Failed to track/notify mint:', error);
                 }
+            } else {
+                console.log('⏸️ Conditions not met. Waiting...');
             }
         };
         sendMintNotification();
