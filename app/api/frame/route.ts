@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserInfo, analyzeInteractions, getBulkUserInfo, getVerifiedAddress } from '@/lib/farcaster';
 import { createOvalLayout } from '@/lib/layout';
-import { renderConstellationSVG } from '@/lib/render';
-import { uploadSVGToIPFS, uploadImageToIPFS, createAndUploadNFTMetadata } from '@/lib/ipfs';
-import { sendNotification } from '@/lib/notifications';
 import { generateConstellationImage } from '@/lib/constellation-image';
+import { uploadJSONToIPFS } from '@/lib/ipfs';
+import { sendNotification } from '@/lib/notifications';
+import { trackConstellation } from '@/lib/database';
 
 // Hard-coded V2 contract address
 const CONTRACT_ADDRESS = '0xC6cC93716CE39C26996425217B909f3E725F5850';
@@ -78,6 +78,14 @@ export async function POST(request: NextRequest) {
             }))
         );
         console.log(`✅ Metadata uploaded to IPFS: ${metadataHash}`);
+
+        // Track constellation creation in database
+        await trackConstellation({
+            fid,
+            username: centralUser.username,
+            ipfsHash: imageUpload.ipfsHash,
+            imageUrl: imageUpload.pinataUrl
+        }).catch(err => console.error('Failed to track constellation:', err));
 
         // 7. Mint bilgilerini döndür
         const tokenURI = `ipfs://${metadataHash}`;

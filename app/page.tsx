@@ -38,6 +38,28 @@ export default function Home() {
         hash,
     });
 
+    // Track mint in database when confirmed
+    useEffect(() => {
+        const trackMint = async () => {
+            if (isConfirmed && hash && context?.user?.fid) {
+                try {
+                    await fetch('/api/track-mint', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fid: context.user.fid,
+                            txHash: hash
+                        })
+                    });
+                    console.log('✅ Mint tracked in database');
+                } catch (error) {
+                    console.error('Failed to track mint:', error);
+                }
+            }
+        };
+        trackMint();
+    }, [isConfirmed, hash, context]);
+
     useEffect(() => {
         const load = async () => {
             const ctx = await sdk.context;
