@@ -1,6 +1,20 @@
 import Redis from 'ioredis';
 
-const redis = new Redis(process.env.REDIS_URL!);
+// Singleton Redis connection
+let redisClient: Redis | null = null;
+
+function getRedisClient(): Redis {
+    if (!redisClient) {
+        if (!process.env.REDIS_URL) {
+            throw new Error('REDIS_URL environment variable is not set');
+        }
+        redisClient = new Redis(process.env.REDIS_URL);
+        console.log('🔗 Redis connection initialized');
+    }
+    return redisClient;
+}
+
+const redis = getRedisClient();
 
 export interface ConstellationRecord {
     fid: number;
