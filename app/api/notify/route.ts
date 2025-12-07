@@ -13,11 +13,11 @@ export async function POST(request: NextRequest) {
 
         // If this is a mint success notification, also track it in database
         if (type === 'mint_success' && txHash) {
-            console.log(`📝 Tracking mint for FID ${ fid }, TX: ${ txHash } `);
+            console.log('Tracking mint for FID', fid, 'TX:', txHash);
             try {
                 const { markAsMinted } = await import('@/lib/database');
                 await markAsMinted(fid, txHash);
-                console.log(`✅ Mint tracked via notify endpoint: FID ${ fid } `);
+                console.log('Mint tracked via notify endpoint: FID', fid);
             } catch (trackError) {
                 console.error('Failed to track mint:', trackError);
                 // Don't fail notification if tracking fails
