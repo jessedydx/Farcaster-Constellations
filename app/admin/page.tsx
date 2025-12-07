@@ -27,6 +27,7 @@ export default function AdminDashboard() {
     const [context, setContext] = useState<any>();
     const [stats, setStats] = useState<Stats | null>(null);
     const [activity, setActivity] = useState<Activity[]>([]);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -62,6 +63,7 @@ export default function AdminDashboard() {
                 const data = await res.json();
                 setStats(data.stats);
                 setActivity(data.activity);
+                setLastUpdated(new Date());
             } catch (error: any) {
                 console.error('Failed to fetch admin data:', error);
                 setError(error.message);
@@ -110,9 +112,16 @@ export default function AdminDashboard() {
 
     return (
         <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'system-ui', background: '#f8f9fa', minHeight: '100vh' }}>
-            <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '30px', borderRadius: '12px', marginBottom: '30px', color: '#fff' }}>
-                <h1 style={{ margin: 0, fontSize: '32px' }}>🎯 Constellation Tracker</h1>
-                <p style={{ margin: '10px 0 0', opacity: 0.9 }}>Admin Dashboard - Real-time Analytics</p>
+            <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '30px', borderRadius: '12px', marginBottom: '30px', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '32px' }}>🎯 Constellation Tracker</h1>
+                    <p style={{ margin: '10px 0 0', opacity: 0.9 }}>Admin Dashboard - Real-time Analytics</p>
+                </div>
+                {lastUpdated && (
+                    <div style={{ background: 'rgba(255,255,255,0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', backdropFilter: 'blur(5px)' }}>
+                        ↻ Updated: {lastUpdated.toLocaleTimeString()}
+                    </div>
+                )}
             </div>
 
             {/* Stats Grid */}
