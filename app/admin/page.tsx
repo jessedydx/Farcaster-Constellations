@@ -47,8 +47,14 @@ export default function AdminDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('/api/admin/stats', {
-                    cache: 'no-store' // Disable cache
+                // Add timestamp to bust cache completely
+                const timestamp = Date.now();
+                const res = await fetch(`/api/admin/stats?_t=${timestamp}`, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
                 });
                 if (!res.ok) {
                     throw new Error(`HTTP ${res.status}`);
@@ -67,8 +73,8 @@ export default function AdminDashboard() {
         // Load data immediately
         fetchData();
 
-        // Auto-refresh every 10 seconds
-        const interval = setInterval(fetchData, 10000);
+        // Auto-refresh every 3 seconds (reduced from 10)
+        const interval = setInterval(fetchData, 3000);
 
         return () => clearInterval(interval);
     }, []);
