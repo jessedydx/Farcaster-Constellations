@@ -80,12 +80,19 @@ export async function POST(request: NextRequest) {
         console.log(`✅ Metadata uploaded to IPFS: ${metadataHash}`);
 
         // Track constellation creation in database
-        await trackConstellation({
-            fid,
-            username: centralUser.username,
-            ipfsHash: imageUpload.ipfsHash,
-            imageUrl: imageUpload.pinataUrl
-        }).catch(err => console.error('Failed to track constellation:', err));
+        try {
+            await trackConstellation({
+                fid,
+                username: centralUser.username,
+                ipfsHash: imageUpload.ipfsHash,
+                imageUrl: imageUpload.pinataUrl
+            });
+            console.log(`✅ Tracked constellation in database: FID ${fid}`);
+        } catch (trackError: any) {
+            console.error('❌ Failed to track constellation:', trackError);
+            console.error('Error details:', trackError.message, trackError.stack);
+            // Don't fail the whole request, but log it
+        }
 
         // 7. Mint bilgilerini döndür
         const tokenURI = `ipfs://${metadataHash}`;
