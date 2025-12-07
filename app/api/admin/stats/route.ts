@@ -17,12 +17,13 @@ export async function GET(request: NextRequest) {
 
         // Enrich with live user data (Follower Count, Neynar Score, Power Badge)
         // This ensures historical records also show up-to-date info
+        let enrichedActivity = [...filteredActivity];
+
         try {
             const fids = filteredActivity.map(a => a.fid);
             if (fids.length > 0) {
                 // Fetch in chunks of 100 to avoid URL length limits
                 const chunkSize = 100;
-                const enrichedActivity: ConstellationRecord[] = [...filteredActivity];
 
                 for (let i = 0; i < fids.length; i += chunkSize) {
                     const chunk = fids.slice(i, i + chunkSize);
