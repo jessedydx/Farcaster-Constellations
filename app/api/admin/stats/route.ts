@@ -38,11 +38,10 @@ export async function GET(request: NextRequest) {
                         const user = userMap.get(item.fid);
                         // Cast to any to avoid build errors with potentially cached type definitions
                         const enrichedItem = item as any;
-                        if (user) { // Ensure user exists before accessing properties
-                            enrichedItem.followerCount = user.followerCount;
-                            enrichedItem.powerBadge = user.powerBadge;
-                            enrichedItem.neynarScore = user.neynarScore;
-                        }
+                        const anyUser = user as any;
+                        enrichedItem.followerCount = anyUser.followerCount;
+                        enrichedItem.powerBadge = anyUser.powerBadge;
+                        enrichedItem.neynarScore = anyUser.neynarScore;
                     }
                 }
             }
