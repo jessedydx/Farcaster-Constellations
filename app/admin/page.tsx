@@ -78,11 +78,34 @@ export default function AdminDashboard() {
         // Load data immediately
         fetchData();
 
-        // Auto-refresh every 3 seconds (reduced from 10)
-        const interval = setInterval(fetchData, 3000);
-
-        return () => clearInterval(interval);
+        // No auto-refresh to save API usage
+        // const interval = setInterval(fetchData, 3000);
+        // return () => clearInterval(interval);
     }, []);
+
+    const handleRefresh = async () => {
+        setLoading(true);
+        try {
+            const timestamp = Date.now();
+            const res = await fetch(`/api/admin/stats?_t=${timestamp}`, {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache'
+                }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            setStats(data.stats);
+            setActivity(data.activity);
+            setLastUpdated(new Date());
+        } catch (error: any) {
+            console.error('Failed to refresh:', error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Optional: Check if user is admin (your FID)
     // Skip this check if context is not available
@@ -96,7 +119,7 @@ export default function AdminDashboard() {
         );
     }
 
-    if (loading) {
+    if (loading && !stats) { // Only show full loading screen on initial load
         return (
             <div style={{ padding: '40px', textAlign: 'center' }}>
                 <p>Loading dashboard...</p>
@@ -104,7 +127,7 @@ export default function AdminDashboard() {
         );
     }
 
-    if (error) {
+    if (error && !stats) {
         return (
             <div style={{ padding: '40px', textAlign: 'center', color: '#ff4444' }}>
                 <h2>Error Loading Dashboard</h2>
@@ -120,11 +143,32 @@ export default function AdminDashboard() {
                     <h1 style={{ margin: 0, fontSize: '32px' }}>🎯 Constellation Tracker</h1>
                     <p style={{ margin: '10px 0 0', opacity: 0.9 }}>Admin Dashboard - Real-time Analytics</p>
                 </div>
-                {lastUpdated && (
-                    <div style={{ background: 'rgba(255,255,255,0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', backdropFilter: 'blur(5px)' }}>
-                        ↻ Updated: {lastUpdated.toLocaleTimeString()}
-                    </div>
-                )}
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <button
+                        onClick={handleRefresh}
+                        disabled={loading}
+                        style={{
+                            background: 'rgba(255,255,255,0.2)',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            backdropFilter: 'blur(5px)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                        }}
+                    >
+                        {loading ? '↻ Refreshing...' : '↻ Refresh Data'}
+                    </button>
+                    {lastUpdated && (
+                        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}>
+                            {lastUpdated.toLocaleTimeString()}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Stats Grid */}
