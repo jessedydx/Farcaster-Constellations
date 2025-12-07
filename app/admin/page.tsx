@@ -28,12 +28,18 @@ export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [activity, setActivity] = useState<Activity[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const load = async () => {
-            const ctx = await sdk.context;
-            setContext(ctx);
-            sdk.actions.ready();
+            try {
+                const ctx = await sdk.context;
+                setContext(ctx);
+                sdk.actions.ready();
+            } catch (err) {
+                console.log('SDK not available, skipping context');
+                // Continue without SDK context
+            }
         };
         load();
     }, []);
@@ -42,27 +48,32 @@ export default function AdminDashboard() {
         const fetchData = async () => {
             try {
                 const res = await fetch('/api/admin/stats');
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
                 const data = await res.json();
                 setStats(data.stats);
                 setActivity(data.activity);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Failed to fetch admin data:', error);
+                setError(error.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        if (context) {
-            fetchData();
-        }
-    }, [context]);
+        // Load data immediately, don't wait for context
+        fetchData();
+    }, []);
 
-    // Check if user is admin (your FID)
-    if (context && context.user?.fid !== 328997) {
+    // Optional: Check if user is admin (your FID)
+    // Skip this check if context is not available
+    if (context && context.user && context.user.fid !== 328997) {
         return (
             <div style={{ padding: '40px', textAlign: 'center', color: '#ff4444' }}>
                 <h1>🚫 Unauthorized</h1>
                 <p>Only admin can access this page.</p>
+                <p><small>Your FID: {context.user.fid}</small></p>
             </div>
         );
     }
@@ -70,7 +81,16 @@ export default function AdminDashboard() {
     if (loading) {
         return (
             <div style={{ padding: '40px', textAlign: 'center' }}>
-                <p>Loading...</p>
+                <p>Loading dashboard...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#ff4444' }}>
+                <h2>Error Loading Dashboard</h2>
+                <p>{error}</p>
             </div>
         );
     }
