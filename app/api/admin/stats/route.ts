@@ -9,10 +9,13 @@ export async function GET(request: NextRequest) {
         const stats = await getStats();
         const activity = await getRecentActivity(50);
 
+        // Filter out test data (FID 999999)
+        const filteredActivity = activity.filter(item => item.fid !== 999999);
+
         return NextResponse.json({
             success: true,
             stats,
-            activity
+            activity: filteredActivity
         });
     } catch (error: any) {
         console.error('Admin stats error:', error);
