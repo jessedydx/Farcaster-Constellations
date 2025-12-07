@@ -38,27 +38,6 @@ export default function Home() {
         hash,
     });
 
-    // Track mint in database when confirmed
-    useEffect(() => {
-        const trackMint = async () => {
-            if (isConfirmed && hash && context?.user?.fid) {
-                try {
-                    await fetch('/api/track-mint', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            fid: context.user.fid,
-                            txHash: hash
-                        })
-                    });
-                    console.log('✅ Mint tracked in database');
-                } catch (error) {
-                    console.error('Failed to track mint:', error);
-                }
-            }
-        };
-        trackMint();
-    }, [isConfirmed, hash, context]);
 
     useEffect(() => {
         const load = async () => {
@@ -110,8 +89,20 @@ export default function Home() {
     // Send notification when NFT mint is confirmed
     useEffect(() => {
         const sendMintNotification = async () => {
-            if (isConfirmed && context?.user?.fid) {
+            if (isConfirmed && context?.user?.fid && hash) {
                 try {
+                    // Track mint in database
+                    await fetch('/api/track-mint', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fid: context.user.fid,
+                            txHash: hash
+                        })
+                    });
+                    console.log('✅ Mint tracked in database');
+
+                    // Send notification
                     await fetch('/api/notify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -127,7 +118,7 @@ export default function Home() {
             }
         };
         sendMintNotification();
-    }, [isConfirmed, context]);
+    }, [isConfirmed, context, hash]);
 
     const addToFarcaster = useCallback(async () => {
         try {
