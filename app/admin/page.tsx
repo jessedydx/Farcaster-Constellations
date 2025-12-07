@@ -47,7 +47,9 @@ export default function AdminDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('/api/admin/stats');
+                const res = await fetch('/api/admin/stats', {
+                    cache: 'no-store' // Disable cache
+                });
                 if (!res.ok) {
                     throw new Error(`HTTP ${res.status}`);
                 }
@@ -62,8 +64,13 @@ export default function AdminDashboard() {
             }
         };
 
-        // Load data immediately, don't wait for context
+        // Load data immediately
         fetchData();
+
+        // Auto-refresh every 10 seconds
+        const interval = setInterval(fetchData, 10000);
+
+        return () => clearInterval(interval);
     }, []);
 
     // Optional: Check if user is admin (your FID)
