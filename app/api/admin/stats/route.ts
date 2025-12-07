@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStats, getRecentActivity } from '@/lib/database';
+import { getStats, getRecentActivity, ConstellationRecord } from '@/lib/database';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
             if (fids.length > 0) {
                 // Fetch in chunks of 100 to avoid URL length limits
                 const chunkSize = 100;
-                const enrichedActivity = [...filteredActivity];
+                const enrichedActivity: ConstellationRecord[] = [...filteredActivity];
 
                 for (let i = 0; i < fids.length; i += chunkSize) {
                     const chunk = fids.slice(i, i + chunkSize);
