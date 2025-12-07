@@ -15,6 +15,46 @@ export async function GET(request: NextRequest) {
         // Filter out test data (FID 999999)
         const filteredActivity = activity.filter(item => item.fid !== 999999);
 
+        // Enrich with live user data (Follower Count, Neynar Score, Power Badge)
+        // This ensures historical records also show up-to-date info
+        try {
+            const fids = filteredActivity.map(a => a.fid);
+            if (fids.length > 0) {
+                // Fetch in chunks of 100 to avoid URL length limits
+                const chunkSize = 100;
+                const enrichedActivity = [...filteredActivity];
+
+                for (let i = 0; i < fids.length; i += chunkSize) {
+                    const chunk = fids.slice(i, i + chunkSize);
+                    // Import getBulkUserInfo dynamically or use axios directly to avoid circular deps if any
+                    // But we can import from lib/farcaster
+                    const { getBulkUserInfo } = await import('@/lib/farcaster');
+                    const users = await getBulkUserInfo(chunk);
+
+                    const userMap = new Map(users.map(u => [u.fid, u]));
+
+                    // Update enrichedActivity in place
+                    for (const item of enrichedActivity) {
+                        const user = userMap.get(item.fid);
+                        if (user) {
+                            item.followerCount = user.followerCount;
+                            item.powerBadge = user.powerBadge;
+                            item.neynarScore = user.neynarScore;
+                        }
+                    }
+                }
+
+                return NextResponse.json({
+                    success: true,
+                    stats,
+                    activity: enrichedActivity
+                });
+            }
+        } catch (enrichError) {
+            console.error('Failed to enrich activity with live data:', enrichError);
+            // Fallback to existing activity data if enrichment fails
+        }
+
         return NextResponse.json({
             success: true,
             stats,

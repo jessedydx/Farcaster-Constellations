@@ -209,7 +209,7 @@ export default function AdminDashboard() {
                                                 )}
                                                 {item.neynarScore && (
                                                     <span style={{ fontSize: '11px', color: '#667eea', fontWeight: '600', background: 'rgba(102, 126, 234, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                                                        {item.neynarScore.toFixed(2)}
+                                                        {(item.neynarScore * 100).toFixed(1)}
                                                     </span>
                                                 )}
                                                 {!item.powerBadge && !item.neynarScore && <span style={{ color: '#adb5bd' }}>-</span>}
