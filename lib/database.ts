@@ -57,7 +57,29 @@ export async function markAsMinted(fid: number, txHash: string, tokenId?: number
     console.log(`🔍 Looking for constellations for FID ${fid}, found ${keys.length} keys`);
 
     if (keys.length === 0) {
-        console.log(`⚠️ No constellation found for FID ${fid}`);
+        console.log(`⚠️ No constellation found for FID ${fid}, creating placeholder record`);
+
+        // Create a placeholder constellation record for this mint
+        const timestamp = Date.now();
+        const key = `constellation:${fid}:${timestamp}`;
+
+        const placeholderRecord = {
+            fid: fid.toString(),
+            username: `user_${fid}`, // Placeholder username
+            ipfsHash: '',
+            imageUrl: '',
+            createdAt: timestamp.toString(),
+            minted: 'true',
+            tokenId: tokenId?.toString() || '',
+            txHash,
+            mintedAt: timestamp.toString(),
+            placeholder: 'true' // Mark as placeholder
+        };
+
+        await redis.hset(key, placeholderRecord as any);
+        await redis.zadd('constellations:timeline', timestamp, key);
+
+        console.log(`✅ Created placeholder record and marked as minted: FID ${fid}`);
         return;
     }
 
