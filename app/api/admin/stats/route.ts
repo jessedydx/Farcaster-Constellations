@@ -38,9 +38,11 @@ export async function GET(request: NextRequest) {
                         const user = userMap.get(item.fid);
                         // Cast to any to avoid build errors with potentially cached type definitions
                         const enrichedItem = item as any;
-                        enrichedItem.followerCount = user.followerCount;
-                        enrichedItem.powerBadge = user.powerBadge;
-                        enrichedItem.neynarScore = user.neynarScore;
+                        if (user) { // Ensure user exists before accessing properties
+                            enrichedItem.followerCount = user.followerCount;
+                            enrichedItem.powerBadge = user.powerBadge;
+                            enrichedItem.neynarScore = user.neynarScore;
+                        }
                     }
                 }
             }
@@ -50,25 +52,25 @@ export async function GET(request: NextRequest) {
                 stats,
                 activity: enrichedActivity
             });
-        }
         } catch (enrichError) {
-        console.error('Failed to enrich activity with live data:', enrichError);
-        // Fallback to existing activity data if enrichment fails
+            console.error('Failed to enrich activity with live data:', enrichError);
+            // Fallback to existing activity data if enrichment fails
+            // The original filteredActivity will be used if this block is reached and no explicit return happens
+        }
+
+        return NextResponse.json({
+            success: true,
+            stats,
+            activity: filteredActivity // This will be returned if enrichment failed or fids.length was 0
+        });
+    } catch (error: any) {
+        console.error('Admin stats error:', error);
+        console.error('Error stack:', error.stack);
+
+        return NextResponse.json({
+            error: error.message,
+            details: error.stack,
+            redisUrl: process.env.REDIS_URL ? 'SET' : 'MISSING'
+        }, { status: 500 });
     }
-
-    return NextResponse.json({
-        success: true,
-        stats,
-        activity: filteredActivity
-    });
-} catch (error: any) {
-    console.error('Admin stats error:', error);
-    console.error('Error stack:', error.stack);
-
-    return NextResponse.json({
-        error: error.message,
-        details: error.stack,
-        redisUrl: process.env.REDIS_URL ? 'SET' : 'MISSING'
-    }, { status: 500 });
-}
 }
