@@ -112,13 +112,14 @@ export default function Home() {
                     const trackData = await trackResponse.json();
                     console.log('✅ Mint tracked in database:', trackData);
 
-                    // Send notification
+                    // Send notification with txHash for tracking
                     await fetch('/api/notify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             fid: context.user.fid,
-                            type: 'mint_success'
+                            type: 'mint_success',
+                            txHash: hash  // Add transaction hash
                         })
                     });
                     console.log('✅ Mint notification sent');

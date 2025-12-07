@@ -1,30 +1,45 @@
+```typescript
 import { NextRequest, NextResponse } from 'next/server';
 import { sendNotification } from '@/lib/notifications';
 
 export async function POST(request: NextRequest) {
     try {
-        const { fid, type } = await request.json();
+        const body = await request.json();
+        const { fid, type, txHash } = body;
 
         if (!fid) {
-            return NextResponse.json({ error: 'FID required' }, { status: 400 });
+            return NextResponse.json({ error: 'FID is required' }, { status: 400 });
         }
 
-        let title = '';
-        let body = '';
-        const targetUrl = 'https://farcaster-constellations-w425.vercel.app';
+        // If this is a mint success notification, also track it in database
+        if (type === 'mint_success' && txHash) {
+            console.log(`📝 Tracking mint for FID ${ fid }, TX: ${ txHash } `);
+            try {
+                const { markAsMinted } = await import('@/lib/database');
+                await markAsMinted(fid, txHash);
+                console.log(`✅ Mint tracked via notify endpoint: FID ${ fid } `);
+            } catch (trackError) {
+                console.error('Failed to track mint:', trackError);
+                // Don't fail notification if tracking fails
+            }
+        }
+
+        let title = 'Farcaster Constellation';
+        let notifBody = 'You have a new notification!';
+        let targetUrl = 'https://farcaster-constellations-w425.vercel.app';
 
         if (type === 'mint_success') {
-            title = 'Congratulations! 🎉';
-            body = 'Your constellation NFT minted successfully! 💎';
+            title = 'Constellation Minted! 🎉';
+            notifBody = 'Your constellation NFT has been successfully minted on Base!';
         } else if (type === 'monthly_reminder') {
-            title = 'Your New Constellation is Ready! 🌌';
-            body = 'Create your updated social galaxy map and mint a new NFT!';
+            title = 'Monthly Reminder 📅';
+            notifBody = 'Mint your new Farcaster constellation this month!';
         }
 
         const success = await sendNotification({
             fid,
             title,
-            body,
+            body: notifBody,
             targetUrl
         });
 
