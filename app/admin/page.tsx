@@ -196,6 +196,9 @@ export default function AdminDashboard() {
                                                 </div>
                                             )}
                                         </td>
+                                        <td style={{ padding: '15px', textAlign: 'center', fontWeight: '500', color: '#495057' }}>
+                                            {item.followerCount ? item.followerCount.toLocaleString() : '-'}
+                                        </td>
                                         <td style={{ padding: '15px', color: '#495057', fontSize: '13px' }}>
                                             {createdDate.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })}
                                             <div style={{ fontSize: '11px', color: '#6c757d', marginTop: '2px' }}>
