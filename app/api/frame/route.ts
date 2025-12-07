@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserInfo, analyzeInteractions, getBulkUserInfo, getVerifiedAddress } from '@/lib/farcaster';
 import { createOvalLayout } from '@/lib/layout';
 import { generateConstellationImage } from '@/lib/constellation-image';
-import { uploadJSONToIPFS } from '@/lib/ipfs';
+import { uploadImageToIPFS, createAndUploadNFTMetadata } from '@/lib/ipfs';
 import { sendNotification } from '@/lib/notifications';
 import { trackConstellation } from '@/lib/database';
 
