@@ -53,22 +53,33 @@ export async function trackConstellation(data: {
 
 export async function markAsMinted(fid: number, txHash: string, tokenId?: number): Promise<void> {
     const keys = await redis.keys(`constellation:${fid}:*`);
-    if (keys.length === 0) return;
+
+    console.log(`🔍 Looking for constellations for FID ${fid}, found ${keys.length} keys`);
+
+    if (keys.length === 0) {
+        console.log(`⚠️ No constellation found for FID ${fid}`);
+        return;
+    }
 
     for (const key of keys.reverse()) {
         const record = await redis.hgetall(key);
-        if (record && !record.minted) {
-            await redis.hset(key, {
-                ...record,
-                minted: 'true',
-                tokenId: tokenId?.toString() || '',
-                txHash,
-                mintedAt: Date.now().toString(),
-            });
-            console.log(`✅ Marked as minted: FID ${fid}`);
+        console.log(`Checking key: ${key}, minted: ${record.minted}`);
+
+        if (record && record.minted !== 'true') {
+            // Update individual fields
+            await redis.hset(key, 'minted', 'true');
+            await redis.hset(key, 'txHash', txHash);
+            await redis.hset(key, 'mintedAt', Date.now().toString());
+            if (tokenId) {
+                await redis.hset(key, 'tokenId', tokenId.toString());
+            }
+
+            console.log(`✅ Marked as minted: FID ${fid}, key: ${key}`);
             return;
         }
     }
+
+    console.log(`⚠️ All constellations for FID ${fid} already minted`);
 }
 
 export async function getStats() {
