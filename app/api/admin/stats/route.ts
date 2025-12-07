@@ -36,38 +36,39 @@ export async function GET(request: NextRequest) {
                     // Update enrichedActivity in place
                     for (const item of enrichedActivity) {
                         const user = userMap.get(item.fid);
-                        if (user) {
-                            item.followerCount = user.followerCount;
-                            item.powerBadge = user.powerBadge;
-                            item.neynarScore = user.neynarScore;
-                        }
+                        // Cast to any to avoid build errors with potentially cached type definitions
+                        const enrichedItem = item as any;
+                        enrichedItem.followerCount = user.followerCount;
+                        enrichedItem.powerBadge = user.powerBadge;
+                        enrichedItem.neynarScore = user.neynarScore;
                     }
                 }
-
-                return NextResponse.json({
-                    success: true,
-                    stats,
-                    activity: enrichedActivity
-                });
             }
-        } catch (enrichError) {
-            console.error('Failed to enrich activity with live data:', enrichError);
-            // Fallback to existing activity data if enrichment fails
+
+            return NextResponse.json({
+                success: true,
+                stats,
+                activity: enrichedActivity
+            });
         }
-
-        return NextResponse.json({
-            success: true,
-            stats,
-            activity: filteredActivity
-        });
-    } catch (error: any) {
-        console.error('Admin stats error:', error);
-        console.error('Error stack:', error.stack);
-
-        return NextResponse.json({
-            error: error.message,
-            details: error.stack,
-            redisUrl: process.env.REDIS_URL ? 'SET' : 'MISSING'
-        }, { status: 500 });
+        } catch (enrichError) {
+        console.error('Failed to enrich activity with live data:', enrichError);
+        // Fallback to existing activity data if enrichment fails
     }
+
+    return NextResponse.json({
+        success: true,
+        stats,
+        activity: filteredActivity
+    });
+} catch (error: any) {
+    console.error('Admin stats error:', error);
+    console.error('Error stack:', error.stack);
+
+    return NextResponse.json({
+        error: error.message,
+        details: error.stack,
+        redisUrl: process.env.REDIS_URL ? 'SET' : 'MISSING'
+    }, { status: 500 });
+}
 }
