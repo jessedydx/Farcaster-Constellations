@@ -22,6 +22,8 @@ interface Activity {
     txHash: string | null;
     mintedAt: number | null;
     followerCount?: number;
+    powerBadge?: boolean;
+    neynarScore?: number;
 }
 
 export default function AdminDashboard() {
@@ -171,6 +173,7 @@ export default function AdminDashboard() {
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>FID</th>
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Username</th>
                                 <th style={{ padding: '15px', textAlign: 'center', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Followers</th>
+                                <th style={{ padding: '15px', textAlign: 'center', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Neynar</th>
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Created</th>
                                 <th style={{ padding: '15px', textAlign: 'center', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Status</th>
                                 <th style={{ padding: '15px', textAlign: 'left', color: '#495057', fontWeight: '600', fontSize: '14px' }}>Last Activity</th>
@@ -198,6 +201,19 @@ export default function AdminDashboard() {
                                         </td>
                                         <td style={{ padding: '15px', textAlign: 'center', fontWeight: '500', color: '#495057' }}>
                                             {item.followerCount ? item.followerCount.toLocaleString() : '-'}
+                                        </td>
+                                        <td style={{ padding: '15px', textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                                                {item.powerBadge && (
+                                                    <span title="Neynar Power User" style={{ fontSize: '14px' }}>⚡</span>
+                                                )}
+                                                {item.neynarScore && (
+                                                    <span style={{ fontSize: '11px', color: '#667eea', fontWeight: '600', background: 'rgba(102, 126, 234, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                        {item.neynarScore.toFixed(2)}
+                                                    </span>
+                                                )}
+                                                {!item.powerBadge && !item.neynarScore && <span style={{ color: '#adb5bd' }}>-</span>}
+                                            </div>
                                         </td>
                                         <td style={{ padding: '15px', color: '#495057', fontSize: '13px' }}>
                                             {createdDate.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })}
