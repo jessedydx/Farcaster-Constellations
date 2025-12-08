@@ -16,6 +16,7 @@
         "webhookUrl": "https://api.neynar.com/f/app/603d4d64-6e8a-4848-a25e-3f161a387bb9/event",
         "description": "Transform your Farcaster social interactions into a unique, mintable cyber-neon constellation NFT. Visualize your galaxy on Base.",
         "tagline": "Your Social Galaxy on Base",
+        "subtitle": "constellations",
         "primaryCategory": "social",
         "tags": [
             "social",
