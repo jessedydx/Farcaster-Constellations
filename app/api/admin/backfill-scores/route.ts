@@ -26,7 +26,10 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const secret = searchParams.get('secret');
 
-        if (secret !== process.env.NEYNAR_API_KEY) { // Re-using API Key as temporary secret for this admin action
+        // Use a hardcoded secret for now to avoid client-side env var issues
+        const ADMIN_SECRET = 'constellations-sync-secret-2025';
+
+        if (secret !== ADMIN_SECRET) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

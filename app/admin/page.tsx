@@ -112,9 +112,8 @@ export default function AdminDashboard() {
 
         setLoading(true);
         try {
-            // Use current API Key as temporary secret or just rely on obfuscation/admin context for this task
-            // In production, you'd use a more secure method
-            const res = await fetch(`/api/admin/backfill-scores?secret=${process.env.NEXT_PUBLIC_NEYNAR_API_KEY || ''}`);
+            // Use the matching hardcoded secret
+            const res = await fetch(`/api/admin/backfill-scores?secret=constellations-sync-secret-2025`);
             const data = await res.json();
 
             if (data.success) {
