@@ -27,6 +27,8 @@ export interface ConstellationRecord {
     txHash: string | null;
     mintedAt: number | null;
     followerCount?: number;
+    powerBadge?: boolean;
+    neynarScore?: number;
 }
 
 export async function trackConstellation(data: {
@@ -35,6 +37,8 @@ export async function trackConstellation(data: {
     ipfsHash: string;
     imageUrl: string;
     followerCount?: number;
+    powerBadge?: boolean;
+    neynarScore?: number;
 }): Promise<void> {
     const key = `constellation:${data.fid}:${Date.now()}`;
 
@@ -150,7 +154,9 @@ export async function getRecentActivity(limit: number = 50): Promise<Constellati
                 tokenId: record.tokenId ? parseInt(record.tokenId) : null,
                 txHash: record.txHash || null,
                 mintedAt: record.mintedAt ? parseInt(record.mintedAt) : null,
-                followerCount: record.followerCount ? parseInt(record.followerCount) : undefined
+                followerCount: record.followerCount ? parseInt(record.followerCount) : undefined,
+                powerBadge: record.powerBadge === 'true',
+                neynarScore: record.neynarScore ? parseFloat(record.neynarScore) : undefined
             });
         }
     }

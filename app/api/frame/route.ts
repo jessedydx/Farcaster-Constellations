@@ -86,7 +86,9 @@ export async function POST(request: NextRequest) {
                 username: centralUser.username,
                 ipfsHash: imageUpload.ipfsHash,
                 imageUrl: imageUpload.pinataUrl,
-                followerCount: centralUser.followerCount
+                followerCount: centralUser.followerCount,
+                powerBadge: centralUser.powerBadge,
+                neynarScore: centralUser.neynarScore
             });
             console.log(`✅ Tracked constellation in database: FID ${fid}`);
         } catch (trackError: any) {

@@ -107,6 +107,30 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleSync = async () => {
+        if (!confirm('This will scan all records and update Neynar scores. It might take a while. Continue?')) return;
+
+        setLoading(true);
+        try {
+            // Use current API Key as temporary secret or just rely on obfuscation/admin context for this task
+            // In production, you'd use a more secure method
+            const res = await fetch(`/api/admin/backfill-scores?secret=${process.env.NEXT_PUBLIC_NEYNAR_API_KEY || ''}`);
+            const data = await res.json();
+
+            if (data.success) {
+                alert(`Sync completed! Updated ${data.updatedCount} records.`);
+                handleRefresh();
+            } else {
+                alert('Sync failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error: any) {
+            console.error('Sync error:', error);
+            alert('Sync failed: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Optional: Check if user is admin (your FID)
     // Skip this check if context is not available
     if (context && context.user && context.user.fid !== 328997) {
@@ -162,6 +186,25 @@ export default function AdminDashboard() {
                         }}
                     >
                         {loading ? '↻ Refreshing...' : '↻ Refresh Data'}
+                    </button>
+                    <button
+                        onClick={handleSync}
+                        disabled={loading}
+                        style={{
+                            background: 'rgba(255,255,255,0.2)',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            backdropFilter: 'blur(5px)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                        }}
+                    >
+                        ⚡ Sync Scores
                     </button>
                     {lastUpdated && (
                         <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}>

@@ -9,6 +9,8 @@ export interface FarcasterUser {
     displayName: string;
     pfpUrl: string;
     followerCount: number;
+    powerBadge: boolean;
+    neynarScore: number;
 }
 
 export interface Interaction {
@@ -34,7 +36,9 @@ export async function getUserInfo(fid: number): Promise<FarcasterUser> {
             username: user.username,
             displayName: user.display_name || user.username,
             pfpUrl: user.pfp_url,
-            followerCount: user.follower_count || 0
+            followerCount: user.follower_count || 0,
+            powerBadge: user.power_badge || false,
+            neynarScore: user.score || 0
         };
     } catch (error) {
         console.error('getUserInfo error:', error);
@@ -75,13 +79,10 @@ export async function analyzeInteractions(fid: number): Promise<Interaction[]> {
                 interaction.score += 3;
             }
 
-            // Mention kontrolü
+            // Mention kontrolü - Basitleştirilmiş
             if (cast.text) {
                 const mentions = cast.text.match(/@\w+/g) || [];
-                for (const mention of mentions) {
-                    // Bu basitleştirilmiş bir örnek
-                    // Gerçek uygulamada mention'ları FID'lere çevirmemiz gerekir
-                }
+                // Gerçek uygulamada mention'ları FID'lere çevirmemiz gerekir
             }
 
             // Recast'lerde
@@ -154,7 +155,9 @@ export async function getBulkUserInfo(fids: number[]): Promise<FarcasterUser[]> 
             username: user.username,
             displayName: user.display_name || user.username,
             pfpUrl: user.pfp_url,
-            followerCount: user.follower_count || 0
+            followerCount: user.follower_count || 0,
+            powerBadge: user.power_badge || false,
+            neynarScore: user.score || 0
         }));
     } catch (error) {
         console.error('getBulkUserInfo error:', error);
