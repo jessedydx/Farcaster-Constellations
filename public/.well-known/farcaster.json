@@ -13,7 +13,7 @@
         "buttonTitle": "Create Your Constellation",
         "splashImageUrl": "https://farcaster-constellations-w425.vercel.app/splash.png",
         "splashBackgroundColor": "#1a0a2e",
-        "webhookUrl": "https://api.neynar.com/f/app/a3ecfedd-bdb9-4b43-ba7f-82fb02f25dd1/event",
+        "webhookUrl": "https://api.neynar.com/f/app/603d4d64-6e8a-4848-a25e-3f161a387bb9/event",
         "ogImageUrl": "https://farcaster-constellations-w425.vercel.app/og-image.png"
     }
 }
