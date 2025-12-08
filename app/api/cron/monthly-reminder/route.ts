@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendNotification } from '@/lib/notifications';
 
+export const dynamic = 'force-dynamic';
+
 // This endpoint is called by Vercel Cron once per month
 // Sends reminders to users who have minted NFTs
 

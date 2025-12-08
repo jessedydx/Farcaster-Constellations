@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { trackConstellation, getStats, getRecentActivity } from '@/lib/database';
+import { NextResponse } from 'next/server';
+import { trackConstellation, getRecentActivity, getStats } from '@/lib/database';
 
-export async function GET(request: NextRequest) {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export async function GET() {
     try {
         // Test 1: Write data
         await trackConstellation({
