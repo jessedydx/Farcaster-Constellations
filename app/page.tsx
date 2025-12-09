@@ -220,7 +220,7 @@ export default function Home() {
             <div style={styles.container}>
                 <div style={styles.content}>
                     <h1 style={styles.title}>
-                        Farcaster Constellation NFT
+                        Social Constellation NFT
                     </h1>
 
                     <p style={styles.subtitle}>
@@ -251,6 +251,28 @@ export default function Home() {
                                             style={{ ...styles.button, opacity: isLoading ? 0.7 : 1 }}
                                         >
                                             {isLoading ? 'Creating Magic... ✨' : '🚀 Create Constellation'}
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                if (typeof window !== 'undefined') {
+                                                    window.location.href = '/old-maps';
+                                                }
+                                            }}
+                                            style={styles.secondaryButton}
+                                        >
+                                            📚 Old Maps
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                if (typeof window !== 'undefined') {
+                                                    window.location.href = '/info';
+                                                }
+                                            }}
+                                            style={styles.secondaryButton}
+                                        >
+                                            ℹ️ Info
                                         </button>
 
                                         {/* Add to Farcaster now shown automatically via popup */}
@@ -323,7 +345,7 @@ export default function Home() {
                                             }}
                                             style={{ ...styles.button, background: '#7c65c1', marginTop: '8px' }}
                                         >
-                                            📢 Share on Warpcast
+                                            Share Your Galaxy
                                         </button>
                                     </div>
                                 )}

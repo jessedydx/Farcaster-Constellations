@@ -6,7 +6,7 @@
     },
     "miniapp": {
         "version": "1",
-        "name": "Farcaster Constellation NFT",
+        "name": "Social Constellation NFT",
         "iconUrl": "https://farcaster-constellations-w425.vercel.app/icon.png",
         "homeUrl": "https://farcaster-constellations-w425.vercel.app",
         "imageUrl": "https://farcaster-constellations-w425.vercel.app/preview.png",

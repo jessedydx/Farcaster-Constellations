@@ -29,6 +29,7 @@ export interface ConstellationRecord {
     followerCount?: number;
     powerBadge?: boolean;
     neynarScore?: number;
+    topInteractions?: string[]; // Username list of top 5 interactions
 }
 
 export async function trackConstellation(data: {
@@ -39,6 +40,7 @@ export async function trackConstellation(data: {
     followerCount?: number;
     powerBadge?: boolean;
     neynarScore?: number;
+    topInteractions?: string[];
 }): Promise<void> {
     const key = `constellation:${data.fid}:${Date.now()}`;
 
@@ -51,7 +53,13 @@ export async function trackConstellation(data: {
         mintedAt: null,
     };
 
-    await redis.hset(key, record as any);
+    // Store topInteractions as JSON string in Redis
+    const redisRecord = {
+        ...record,
+        topInteractions: data.topInteractions ? JSON.stringify(data.topInteractions) : undefined
+    };
+
+    await redis.hset(key, redisRecord as any);
     await redis.zadd('constellations:timeline', Date.now(), key);
 
     console.log(`✅ Tracked constellation: FID ${data.fid}`);
@@ -156,10 +164,42 @@ export async function getRecentActivity(limit: number = 50): Promise<Constellati
                 mintedAt: record.mintedAt ? parseInt(record.mintedAt) : null,
                 followerCount: record.followerCount ? parseInt(record.followerCount) : undefined,
                 powerBadge: record.powerBadge === 'true',
-                neynarScore: record.neynarScore ? parseFloat(record.neynarScore) : undefined
+                neynarScore: record.neynarScore ? parseFloat(record.neynarScore) : undefined,
+                topInteractions: record.topInteractions ? JSON.parse(record.topInteractions) : undefined
             });
         }
     }
 
     return records;
+}
+
+export async function getUserMintedConstellations(fid: number, limit: number = 10): Promise<ConstellationRecord[]> {
+    const keys = await redis.keys(`constellation:${fid}:*`);
+    const records: ConstellationRecord[] = [];
+
+    for (const key of keys) {
+        const record = await redis.hgetall(key);
+        if (record && record.fid && record.minted === 'true') {
+            records.push({
+                fid: parseInt(record.fid),
+                username: record.username,
+                ipfsHash: record.ipfsHash,
+                imageUrl: record.imageUrl,
+                createdAt: parseInt(record.createdAt),
+                minted: record.minted === 'true',
+                tokenId: record.tokenId ? parseInt(record.tokenId) : null,
+                txHash: record.txHash || null,
+                mintedAt: record.mintedAt ? parseInt(record.mintedAt) : null,
+                followerCount: record.followerCount ? parseInt(record.followerCount) : undefined,
+                powerBadge: record.powerBadge === 'true',
+                neynarScore: record.neynarScore ? parseFloat(record.neynarScore) : undefined,
+                topInteractions: record.topInteractions ? JSON.parse(record.topInteractions) : undefined
+            });
+        }
+    }
+
+    // Sort by mintedAt (newest first) and limit
+    return records
+        .sort((a, b) => (b.mintedAt || 0) - (a.mintedAt || 0))
+        .slice(0, limit);
 }

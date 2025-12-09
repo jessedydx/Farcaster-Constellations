@@ -88,7 +88,8 @@ export async function POST(request: NextRequest) {
                 imageUrl: imageUpload.pinataUrl,
                 followerCount: centralUser.followerCount,
                 powerBadge: centralUser.powerBadge,
-                neynarScore: centralUser.neynarScore
+                neynarScore: centralUser.neynarScore,
+                topInteractions: connectionsWithScores.slice(0, 5).map(c => c.username)
             });
             console.log(`✅ Tracked constellation in database: FID ${fid}`);
         } catch (trackError: any) {
