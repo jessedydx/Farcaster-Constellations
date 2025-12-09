@@ -16,7 +16,7 @@ function getRedisClient(): Redis {
     return redisClient;
 }
 
-const redis = getRedisClient();
+export const redis = getRedisClient();
 
 export interface ConstellationRecord {
     fid: number;
