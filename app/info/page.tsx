@@ -22,7 +22,7 @@ export default function InfoPage() {
                     <button onClick={() => router.back()} style={styles.backButton}>
                         ← Back
                     </button>
-                    <h1 style={styles.title}>How Your Constellation is Created</h1>
+                    <h1 style={{ ...styles.title, paddingTop: '40px' }}>How Your Constellation is Created</h1>
                     <p style={styles.subtitle}>
                         Understanding the metrics behind your unique social galaxy
                     </p>
@@ -58,14 +58,7 @@ export default function InfoPage() {
                         </p>
                     </div>
 
-                    {/* Card 4 */}
-                    <div style={styles.card}>
-                        <div style={styles.icon}>🎨</div>
-                        <h3 style={styles.cardTitle}>Visualization</h3>
-                        <p style={styles.cardText}>
-                            Your unique constellation map is generated in a stunning cyber-neon aesthetic.
-                        </p>
-                    </div>
+
 
                     {/* Card 5 */}
                     <div style={styles.card}>

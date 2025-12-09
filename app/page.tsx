@@ -250,7 +250,7 @@ export default function Home() {
                                             disabled={isLoading}
                                             style={{ ...styles.button, opacity: isLoading ? 0.7 : 1 }}
                                         >
-                                            {isLoading ? 'Creating Magic... ✨' : '🚀 Create Constellation'}
+                                            {isLoading ? 'Creating Magic... ✨' : 'Create Constellation'}
                                         </button>
 
                                         <button
@@ -261,7 +261,7 @@ export default function Home() {
                                             }}
                                             style={styles.secondaryButton}
                                         >
-                                            📚 Old Maps
+                                            Old Maps
                                         </button>
 
                                         <button
@@ -272,7 +272,7 @@ export default function Home() {
                                             }}
                                             style={styles.secondaryButton}
                                         >
-                                            ℹ️ Info
+                                            Info
                                         </button>
 
                                         {/* Add to Farcaster now shown automatically via popup */}
@@ -285,7 +285,7 @@ export default function Home() {
                                         Please open this Mini App inside Farcaster to connect your account.
                                     </p>
                                     <button onClick={copyToClipboard} style={styles.button}>
-                                        📋 Copy App URL
+                                        Copy App URL
                                     </button>
                                 </>
                             )}

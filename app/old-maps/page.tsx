@@ -78,7 +78,7 @@ export default function OldMapsPage() {
                     <button onClick={() => router.back()} style={styles.backButton}>
                         ← Back
                     </button>
-                    <h1 style={styles.title}>Your Constellation Gallery</h1>
+                    <h1 style={{ ...styles.title, paddingTop: '40px' }}>Your Constellation Gallery</h1>
                     <p style={styles.subtitle}>
                         Your social galaxy snapshots through time
                     </p>
