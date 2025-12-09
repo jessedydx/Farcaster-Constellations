@@ -5,10 +5,12 @@ let redisClient: Redis | null = null;
 
 function getRedisClient(): Redis {
     if (!redisClient) {
-        if (!process.env.REDIS_URL) {
-            throw new Error('REDIS_URL environment variable is not set');
+        const REDIS_URL = process.env.REDIS_URL || '';
+
+        if (!REDIS_URL) {
+            throw new Error('REDIS_URL environment variable is required');
         }
-        redisClient = new Redis(process.env.REDIS_URL);
+        redisClient = new Redis(REDIS_URL);
         console.log('🔗 Redis connection initialized');
     }
     return redisClient;
