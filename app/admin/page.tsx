@@ -130,6 +130,31 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleTestNotification = async () => {
+        if (!confirm('Send test notification to FID 328997?')) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/test-notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fid: 328997 })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert('Test notification sent successfully!');
+            } else {
+                alert('Failed to send: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error: any) {
+            console.error('Test notification error:', error);
+            alert('Failed to send: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Optional: Check if user is admin (your FID)
     // Skip this check if context is not available
     if (context && context.user && context.user.fid !== 328997) {
@@ -190,20 +215,35 @@ export default function AdminDashboard() {
                         onClick={handleSync}
                         disabled={loading}
                         style={{
-                            background: 'rgba(255,255,255,0.2)',
-                            border: '1px solid rgba(255,255,255,0.3)',
+                            background: 'rgba(255,165,0,0.2)',
+                            border: '1px solid rgba(255,165,0,0.5)',
                             color: 'white',
                             padding: '8px 16px',
                             borderRadius: '20px',
                             cursor: 'pointer',
                             fontSize: '13px',
-                            backdropFilter: 'blur(5px)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '5px'
+                            fontWeight: '500',
+                            opacity: loading ? 0.5 : 1
                         }}
                     >
                         ⚡ Sync Scores
+                    </button>
+                    <button
+                        onClick={handleTestNotification}
+                        disabled={loading}
+                        style={{
+                            background: 'rgba(0,200,255,0.2)',
+                            border: '1px solid rgba(0,200,255,0.5)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            opacity: loading ? 0.5 : 1
+                        }}
+                    >
+                        🔔 Test Notification
                     </button>
                     {lastUpdated && (
                         <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}>
