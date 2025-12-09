@@ -219,11 +219,8 @@ export default function AdminDashboard() {
         setIsRefreshingScores(true);
         setRefreshStats(null);
         try {
-            const res = await fetch('/api/cron/weekly-score-refresh', {
-                method: 'POST',
-                headers: {
-                    'x-cron-secret': process.env.NEXT_PUBLIC_CRON_SECRET || ''
-                }
+            const res = await fetch('/api/admin/refresh-scores', {
+                method: 'POST'
             });
             const data = await res.json();
             setRefreshStats(data);
