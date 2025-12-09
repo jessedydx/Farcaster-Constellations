@@ -203,3 +203,42 @@ export async function getUserMintedConstellations(fid: number, limit: number = 1
         .sort((a, b) => (b.mintedAt || 0) - (a.mintedAt || 0))
         .slice(0, limit);
 }
+
+
+export async function getGlobalStats() {
+    const allKeys = await redis.keys("constellation:*");
+    const userTagCounts: Record<string, number> = {};
+    let totalConstellations = 0;
+    let totalMinted = 0;
+
+    for (const key of allKeys) {
+        const record = await redis.hgetall(key);
+        if (record && record.fid) {
+            totalConstellations++;
+            if (record.minted === "true") {
+                totalMinted++;
+            }
+
+            if (record.topInteractions) {
+                try {
+                    const interactions: string[] = JSON.parse(record.topInteractions);
+                    interactions.forEach(username => {
+                        userTagCounts[username] = (userTagCounts[username] || 0) + 1;
+                    });
+                } catch (e) {
+                }
+            }
+        }
+    }
+
+    const topTaggedUsers = Object.entries(userTagCounts)
+        .map(([username, count]) => ({ username, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+    return {
+        totalConstellations,
+        totalMinted,
+        topTaggedUsers
+    };
+}

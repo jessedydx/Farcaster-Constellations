@@ -275,6 +275,17 @@ export default function Home() {
                                             Info
                                         </button>
 
+                                        <button
+                                            onClick={() => {
+                                                if (typeof window !== 'undefined') {
+                                                    window.location.href = '/stats';
+                                                }
+                                            }}
+                                            style={styles.secondaryButton}
+                                        >
+                                            Stats
+                                        </button>
+
                                         {/* Add to Farcaster now shown automatically via popup */}
                                     </div>
                                 </>
