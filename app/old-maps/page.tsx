@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import sdk from '@farcaster/frame-sdk';
+import { useComposeCast } from '@coinbase/onchainkit/minikit';
 import { useRouter } from 'next/navigation';
 
 interface Constellation {
@@ -23,6 +24,7 @@ export default function OldMapsPage() {
     const [constellations, setConstellations] = useState<Constellation[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { composeCast } = useComposeCast();
 
     useEffect(() => {
         const load = async () => {
@@ -63,11 +65,15 @@ export default function OldMapsPage() {
             ? constellation.topInteractions.map((u: string) => `@${u}`).join(' ')
             : '';
 
-        const text = encodeURIComponent(`Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨\n\n${topUsers}`);
-        const miniAppUrl = encodeURIComponent("https://farcaster.xyz/miniapps/1QWOndscTLyV/farcaster-constellation-nft");
+        const text = `Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨\n\n${topUsers}`;
         const imageUrl = constellation.imageUrl;
+        const miniAppUrl = "https://farcaster.xyz/miniapps/1QWOndscTLyV/farcaster-constellation-nft";
 
-        sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${text}&embeds[]=${imageUrl}&embeds[]=${miniAppUrl}`);
+        // Use OnchainKit's native composeCast for BaseApp compatibility
+        composeCast({
+            text,
+            embeds: [imageUrl, miniAppUrl]
+        });
     };
 
     return (

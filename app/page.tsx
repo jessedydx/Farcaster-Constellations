@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import sdk, { type Context } from '@farcaster/frame-sdk';
-import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import sdk from '@farcaster/frame-sdk';
+import { useAccount, useConnect, usePublicClient, useWalletClient, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useComposeCast } from '@coinbase/onchainkit/minikit';
 import { parseEther } from 'viem';
 
 // NFT Contract ABI (Sadece mint fonksiyonu için)
@@ -29,6 +30,7 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(false);
     const [constellationData, setConstellationData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const { composeCast } = useComposeCast();
 
     // Wagmi Hooks
     const { address, isConnected } = useAccount();
@@ -335,13 +337,15 @@ export default function Home() {
                                                     ? constellationData.topInteractions.map((u: string) => `@${u}`).join(' ')
                                                     : '';
 
-                                                const text = encodeURIComponent(`Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨\n\n${topUsers}`);
-                                                const miniAppUrl = encodeURIComponent("https://farcaster.xyz/miniapps/1QWOndscTLyV/farcaster-constellation-nft");
-                                                // Don't encode image URL - Warpcast needs raw URL for proper embed
+                                                const text = `Just minted my Farcaster Constellation! 🌌\n\nCheck out my social galaxy map! ✨\n\n${topUsers}`;
                                                 const imageUrl = constellationData.imageUrl;
+                                                const miniAppUrl = "https://farcaster.xyz/miniapps/1QWOndscTLyV/farcaster-constellation-nft";
 
-                                                // Order: Image first, then Mini App Link
-                                                sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${text}&embeds[]=${imageUrl}&embeds[]=${miniAppUrl}`);
+                                                // Use OnchainKit's native composeCast for BaseApp compatibility
+                                                composeCast({
+                                                    text,
+                                                    embeds: [imageUrl, miniAppUrl]
+                                                });
                                             }}
                                             style={{ ...styles.button, background: '#7c65c1', marginTop: '8px' }}
                                         >
