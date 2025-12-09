@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             fid,
             title: "🌟 Constellation Ready!",
             body: "Your Farcaster constellation map has been generated. Tap to view and mint!",
-            targetUrl: `${request.nextUrl.origin}/constellation/${fid}`
+            targetUrl: `${request.nextUrl.origin}`
         }).catch(err => console.error('Notification send error:', err));
 
         console.log(`✅ Ready for minting!`);
