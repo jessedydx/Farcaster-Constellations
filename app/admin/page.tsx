@@ -180,6 +180,33 @@ export default function AdminDashboard() {
         localStorage.removeItem('admin_authenticated');
     };
 
+    const handleBroadcast = async () => {
+        const confirmMessage = '⚠️ CRITICAL ACTION ⚠️\n\nThis will send a notification to ALL users who have created constellations.\n\nAre you absolutely sure?';
+        if (!confirm(confirmMessage)) return;
+
+        const doubleConfirm = confirm('Second confirmation: Send broadcast to all users?');
+        if (!doubleConfirm) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/broadcast-notification', {
+                method: 'POST'
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert(`✅ Broadcast Complete!\n\nSent: ${data.successCount}/${data.totalUsers} users\nFailed: ${data.failCount}`);
+            } else {
+                alert('Broadcast failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error: any) {
+            console.error('Broadcast error:', error);
+            alert('Broadcast failed: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Show login screen if not authenticated
     if (!isAuthenticated) {
         return (
@@ -330,6 +357,23 @@ export default function AdminDashboard() {
                         }}
                     >
                         🔔 Test Notification
+                    </button>
+                    <button
+                        onClick={handleBroadcast}
+                        disabled={loading}
+                        style={{
+                            background: 'rgba(255,50,50,0.3)',
+                            border: '2px solid rgba(255,50,50,0.7)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            opacity: loading ? 0.5 : 1
+                        }}
+                    >
+                        📢 Broadcast to All Users
                     </button>
                     <button
                         onClick={handleLogout}
