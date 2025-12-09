@@ -35,6 +35,8 @@ export default function AdminDashboard() {
     const [error, setError] = useState<string | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
+    const [isRefreshingScores, setIsRefreshingScores] = useState(false);
+    const [refreshStats, setRefreshStats] = useState<any>(null);
 
     useEffect(() => {
         // Check for saved authentication
@@ -199,11 +201,43 @@ export default function AdminDashboard() {
             } else {
                 alert('Broadcast failed: ' + (data.error || 'Unknown error'));
             }
-        } catch (error: any) {
-            console.error('Broadcast error:', error);
-            alert('Broadcast failed: ' + error.message);
+        } catch (err: any) {
+            console.error('Broadcast error:', err);
+            alert('❌ Error: ' + err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRefreshScores = async () => {
+        const confirmMessage = '🔄 Refresh All Neynar Scores\n\nThis will fetch updated scores for all users from Neynar API.\nThis may take a few minutes.\n\nContinue?';
+        if (!confirm(confirmMessage)) return;
+
+        const doubleConfirm = confirm('Are you SURE? This will call Neynar API for all users.');
+        if (!doubleConfirm) return;
+
+        setIsRefreshingScores(true);
+        setRefreshStats(null);
+        try {
+            const res = await fetch('/api/cron/weekly-score-refresh', {
+                method: 'POST',
+                headers: {
+                    'x-cron-secret': process.env.NEXT_PUBLIC_CRON_SECRET || ''
+                }
+            });
+            const data = await res.json();
+            setRefreshStats(data);
+
+            if (data.success) {
+                alert(`✅ Score Refresh Complete!\n\nTotal: ${data.total}\nUpdated: ${data.updated}\nFailed: ${data.failed}`);
+            } else {
+                alert('Refresh failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (err: any) {
+            console.error('Refresh error:', err);
+            alert('❌ Error: ' + err.message);
+        } finally {
+            setIsRefreshingScores(false);
         }
     };
 
@@ -374,6 +408,23 @@ export default function AdminDashboard() {
                         }}
                     >
                         📢 Broadcast to All Users
+                    </button>
+                    <button
+                        onClick={handleRefreshScores}
+                        disabled={isRefreshingScores || loading}
+                        style={{
+                            background: 'rgba(255,166,0,0.3)',
+                            border: '2px solid rgba(255,166,0,0.7)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            cursor: isRefreshingScores ? 'not-allowed' : 'pointer',
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            opacity: (isRefreshingScores || loading) ? 0.5 : 1
+                        }}
+                    >
+                        {isRefreshingScores ? '⏳ Refreshing...' : '🔄 Refresh Neynar Scores'}
                     </button>
                     <button
                         onClick={handleLogout}

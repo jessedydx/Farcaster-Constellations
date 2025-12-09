@@ -30,6 +30,7 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(false);
     const [constellationData, setConstellationData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [neynarScore, setNeynarScore] = useState<number | null>(null);
     const { composeCast } = useComposeCast();
 
     // Wagmi Hooks
@@ -40,6 +41,25 @@ export default function Home() {
         hash,
     });
 
+
+    // Fetch user Neynar score
+    useEffect(() => {
+        if (context?.user?.fid) {
+            fetchUserScore(context.user.fid);
+        }
+    }, [context?.user?.fid]);
+
+    const fetchUserScore = async (fid: number) => {
+        try {
+            const res = await fetch(`/api/user-score?fid=${fid}`);
+            if (res.ok) {
+                const data = await res.json();
+                setNeynarScore(data.score);
+            }
+        } catch (err) {
+            console.error('Error fetching user score:', err);
+        }
+    };
 
     useEffect(() => {
         const load = async () => {
@@ -241,7 +261,14 @@ export default function Home() {
                         <div style={styles.framebox}>
                             {context?.user?.fid ? (
                                 <>
-                                    <h2 style={styles.frameTitle}>Welcome, @{context.user.username}!</h2>
+                                    <h2 style={styles.frameTitle}>
+                                        Welcome, @{context.user.username}!
+                                        {neynarScore !== null && (
+                                            <span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+                                                ⭐ {neynarScore}
+                                            </span>
+                                        )}
+                                    </h2>
                                     <p style={styles.frameText}>
                                         Ready to visualize your social galaxy?
                                     </p>
