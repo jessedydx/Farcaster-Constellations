@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     other: {
         'fc:miniapp': JSON.stringify({
             version: 'next',
-            imageUrl: 'https://farcaster-constellations-w425.vercel.app/preview.png',
+            imageUrl: 'https://farcaster-constellations-w425.vercel.app/preview.png?v=1733781100',
             button: {
                 title: 'Create Your Constellation',
                 action: {

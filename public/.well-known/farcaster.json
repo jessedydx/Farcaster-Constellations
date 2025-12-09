@@ -7,11 +7,11 @@
     "miniapp": {
         "version": "1",
         "name": "Social Constellation NFT",
-        "iconUrl": "https://farcaster-constellations-w425.vercel.app/icon.png",
+        "iconUrl": "https://farcaster-constellations-w425.vercel.app/icon.png?v=1733781100",
         "homeUrl": "https://farcaster-constellations-w425.vercel.app",
-        "imageUrl": "https://farcaster-constellations-w425.vercel.app/preview.png",
+        "imageUrl": "https://farcaster-constellations-w425.vercel.app/preview.png?v=1733781100",
         "buttonTitle": "Create Your Constellation",
-        "splashImageUrl": "https://farcaster-constellations-w425.vercel.app/splash.png",
+        "splashImageUrl": "https://farcaster-constellations-w425.vercel.app/splash.png?v=1733781100",
         "splashBackgroundColor": "#1a0a2e",
         "webhookUrl": "https://api.neynar.com/f/app/603d4d64-6e8a-4848-a25e-3f161a387bb9/event",
         "description": "Transform your Farcaster social interactions into a unique, mintable cyber-neon constellation NFT. Visualize your galaxy on Base.",
@@ -28,6 +28,6 @@
             "https://farcaster-constellations-w425.vercel.app/assets/screen1.png",
             "https://farcaster-constellations-w425.vercel.app/assets/screen2.png"
         ],
-        "ogImageUrl": "https://farcaster-constellations-w425.vercel.app/og-image.png"
+        "ogImageUrl": "https://farcaster-constellations-w425.vercel.app/og-image.png?v=1733781100"
     }
 }
