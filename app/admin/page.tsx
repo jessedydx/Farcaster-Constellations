@@ -33,8 +33,16 @@ export default function AdminDashboard() {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [password, setPassword] = useState('');
 
     useEffect(() => {
+        // Check for saved authentication
+        const savedAuth = localStorage.getItem('admin_authenticated');
+        if (savedAuth === 'true') {
+            setIsAuthenticated(true);
+        }
+
         const load = async () => {
             try {
                 const ctx = await sdk.context;
@@ -155,6 +163,84 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (password === '1453') {
+            setIsAuthenticated(true);
+            localStorage.setItem('admin_authenticated', 'true');
+            setPassword('');
+        } else {
+            alert('Incorrect password');
+            setPassword('');
+        }
+    };
+
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        localStorage.removeItem('admin_authenticated');
+    };
+
+    // Show login screen if not authenticated
+    if (!isAuthenticated) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            }}>
+                <div style={{
+                    background: 'white',
+                    padding: '40px',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+                    width: '100%',
+                    maxWidth: '400px'
+                }}>
+                    <h1 style={{ margin: '0 0 10px', color: '#333', textAlign: 'center' }}>🔐 Admin Login</h1>
+                    <p style={{ margin: '0 0 30px', color: '#666', textAlign: 'center', fontSize: '14px' }}>
+                        Enter password to access dashboard
+                    </p>
+                    <form onSubmit={handleLogin}>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter password"
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                border: '2px solid #e0e0e0',
+                                borderRadius: '8px',
+                                fontSize: '16px',
+                                marginBottom: '20px',
+                                boxSizing: 'border-box'
+                            }}
+                            autoFocus
+                        />
+                        <button
+                            type="submit"
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
     // Optional: Check if user is admin (your FID)
     // Skip this check if context is not available
     if (context && context.user && context.user.fid !== 328997) {
@@ -244,6 +330,21 @@ export default function AdminDashboard() {
                         }}
                     >
                         🔔 Test Notification
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        style={{
+                            background: 'rgba(255,0,0,0.2)',
+                            border: '1px solid rgba(255,0,0,0.5)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: ' 500'
+                        }}
+                    >
+                        🚪 Logout
                     </button>
                     {lastUpdated && (
                         <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}>
