@@ -43,23 +43,26 @@ export default function Home() {
 
 
     // Fetch user Neynar score
-    useEffect(() => {
-        if (context?.user?.fid) {
-            fetchUserScore(context.user.fid);
-        }
-    }, [context?.user?.fid]);
-
-    const fetchUserScore = async (fid: number) => {
+    const fetchUserScore = useCallback(async (fid: number) => {
         try {
             const res = await fetch(`/api/user-score?fid=${fid}`);
             if (res.ok) {
                 const data = await res.json();
                 setNeynarScore(data.score);
+                console.log('Neynar score loaded:', data.score);
+            } else {
+                console.error('Failed to fetch score:', res.status);
             }
         } catch (err) {
             console.error('Error fetching user score:', err);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (context?.user?.fid && neynarScore === null) {
+            fetchUserScore(context.user.fid);
+        }
+    }, [context?.user?.fid, neynarScore, fetchUserScore]);
 
     useEffect(() => {
         const load = async () => {

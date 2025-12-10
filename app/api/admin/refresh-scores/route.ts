@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { POST as cronRefresh } from '@/app/api/cron/weekly-score-refresh/route';
+import { POST as cronRefresh } from '../../cron/weekly-score-refresh/route';
 
 export async function POST(request: NextRequest) {
     try {
