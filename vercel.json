@@ -3,10 +3,6 @@
         {
             "path": "/api/cron/monthly-reminder",
             "schedule": "0 12 1 * *"
-        },
-        {
-            "path": "/api/cron/weekly-score-refresh",
-            "schedule": "0 5 * * 1"
         }
     ]
 }

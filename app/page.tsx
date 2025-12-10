@@ -42,28 +42,6 @@ export default function Home() {
     });
 
 
-    // Fetch user Neynar score
-    const fetchUserScore = useCallback(async (fid: number) => {
-        try {
-            const res = await fetch(`/api/user-score?fid=${fid}`);
-            if (res.ok) {
-                const data = await res.json();
-                setNeynarScore(data.score);
-                console.log('Neynar score loaded:', data.score);
-            } else {
-                console.error('Failed to fetch score:', res.status);
-            }
-        } catch (err) {
-            console.error('Error fetching user score:', err);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (context?.user?.fid && neynarScore === null) {
-            fetchUserScore(context.user.fid);
-        }
-    }, [context?.user?.fid, neynarScore, fetchUserScore]);
-
     useEffect(() => {
         const load = async () => {
             const ctx = await sdk.context;
@@ -266,11 +244,6 @@ export default function Home() {
                                 <>
                                     <h2 style={styles.frameTitle}>
                                         Welcome, @{context.user.username}!
-                                        {neynarScore !== null && (
-                                            <span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
-                                                ⭐ {neynarScore}
-                                            </span>
-                                        )}
                                     </h2>
                                     <p style={styles.frameText}>
                                         Ready to visualize your social galaxy?

@@ -259,17 +259,3 @@ export async function getAllUniqueFIDs(): Promise<number[]> {
 
     return Array.from(fids);
 }
-
-// Cache user Neynar score with 7-day TTL
-export async function cacheUserScore(fid: number, score: number): Promise<void> {
-    const key = `user:${fid}:score`;
-    const ttl = 7 * 24 * 60 * 60; // 7 days in seconds
-    await redis.setex(key, ttl, score.toString());
-}
-
-// Get cached user Neynar score
-export async function getCachedUserScore(fid: number): Promise<number | null> {
-    const key = `user:${fid}:score`;
-    const score = await redis.get(key);
-    return score ? parseInt(score, 10) : null;
-}
