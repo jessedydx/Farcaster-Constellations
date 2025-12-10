@@ -432,14 +432,14 @@ export default function BroadcastManagement() {
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
-                                <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                                    <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
-                                    <th style={{ padding: '12px', textAlign: 'left' }}>Total</th>
-                                    <th style={{ padding: '12px', textAlign: 'left' }}>Sent</th>
-                                    <th style={{ padding: '12px', textAlign: 'left' }}>Failed</th>
-                                    <th style={{ padding: '12px', textAlign: 'left' }}>Clicks</th>
-                                    <th style={{ padding: '12px', textAlign: 'left' }}>CTR</th>
-                                    <th style={{ padding: '12px', textAlign: 'left' }}>Action</th>
+                                <tr style={{ borderBottom: '2px solid #e0e0e0', background: '#f8f9fa' }}>
+                                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold', color: '#495057' }}>Tarih</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold', color: '#495057' }}>Toplam</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold', color: '#495057' }}>Gönderilen</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold', color: '#495057' }}>Başarısız</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold', color: '#495057' }}>Tıklama</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold', color: '#495057' }}>CTR</th>
+                                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold', color: '#495057' }}>İşlem</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -513,27 +513,34 @@ export default function BroadcastManagement() {
                             </button>
                         </div>
                         <div style={{ marginBottom: '20px' }}>
-                            <h3>Stats</h3>
-                            <p>Total: {broadcastDetails.stats.total} | Sent: {broadcastDetails.stats.sent} | Failed: {broadcastDetails.stats.failed} | Clicks: {broadcastDetails.stats.clicks}</p>
+                            <h3 style={{ color: '#333' }}>İstatistikler</h3>
+                            <p style={{ color: '#555' }}>
+                                Toplam: {broadcastDetails?.stats?.total || 0} |
+                                Gönderilen: {broadcastDetails?.stats?.sent || 0} |
+                                Başarısız: {broadcastDetails?.stats?.failed || 0} |
+                                Tıklama: {broadcastDetails?.stats?.clicks || 0}
+                            </p>
                         </div>
                         <div style={{ marginBottom: '20px' }}>
-                            <h3>Success ({broadcastDetails.succeeded.length})</h3>
-                            <div style={{ maxHeight: '150px', overflow: 'auto', background: '#f5f5f5', padding: '10px', borderRadius: '4px', fontSize: '14px' }}>
-                                {broadcastDetails.succeeded.join(', ')}
+                            <h3 style={{ color: '#4CAF50' }}>Başarılı ({broadcastDetails?.succeeded?.length || 0})</h3>
+                            <div style={{ maxHeight: '150px', overflow: 'auto', background: '#f5f5f5', padding: '10px', borderRadius: '4px', fontSize: '14px', color: '#333' }}>
+                                {broadcastDetails?.succeeded?.length > 0
+                                    ? broadcastDetails.succeeded.join(', ')
+                                    : 'Henüz başarılı gönderim yok'}
                             </div>
                         </div>
-                        {broadcastDetails.failed.length > 0 && (
+                        {broadcastDetails?.failed && broadcastDetails.failed.length > 0 && (
                             <div style={{ marginBottom: '20px' }}>
-                                <h3>Failed ({broadcastDetails.failed.length})</h3>
+                                <h3 style={{ color: '#f44336' }}>Başarısız ({broadcastDetails.failed.length})</h3>
                                 <div style={{ maxHeight: '150px', overflow: 'auto' }}>
                                     {broadcastDetails.failed.map((f: any) => (
-                                        <div key={f.fid} style={{ padding: '5px', borderBottom: '1px solid #eee', fontSize: '14px' }}>
-                                            FID {f.fid}: {f.error}
+                                        <div key={f.fid} style={{ padding: '5px', borderBottom: '1px solid #eee', fontSize: '14px', color: '#555' }}>
+                                            <strong>FID {f.fid}:</strong> {f.error}
                                         </div>
                                     ))}
                                 </div>
                                 <button
-                                    onClick={() => handleRetryFailed(selectedBroadcast)}
+                                    onClick={() => handleRetryFailed(selectedBroadcast!)}
                                     style={{
                                         marginTop: '10px',
                                         padding: '10px 20px',
@@ -545,7 +552,7 @@ export default function BroadcastManagement() {
                                         fontWeight: 'bold'
                                     }}
                                 >
-                                    🔄 Retry All Failed
+                                    🔄 Tümünü Tekrar Dene
                                 </button>
                             </div>
                         )}
