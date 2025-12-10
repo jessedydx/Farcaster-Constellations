@@ -11,7 +11,10 @@ export const maxDuration = 60; // 1 minute for enqueueing
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { message } = body as { message?: BroadcastMessage };
+        const { message, testFids } = body as {
+            message?: BroadcastMessage;
+            testFids?: number[]; // Optional: untuk test mode
+        };
 
         if (!message || !message.title || !message.body || !message.targetUrl) {
             return NextResponse.json(
@@ -20,19 +23,18 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get all constellation keys
-        const keys = await redis.keys('constellation:*');
+        let uniqueFids: number[];
 
-        // Extract unique FIDs
-        const fidSet = new Set<number>();
-        for (const key of keys) {
-            const record = await redis.hgetall(key);
-            if (record && record.fid) {
-                fidSet.add(parseInt(record.fid));
-            }
+        // TEST MODE: Eğer testFids varsa sadece onları kullan
+        if (testFids && testFids.length > 0) {
+            uniqueFids = testFids;
+            console.log(`🧪 TEST MODE: Broadcasting to ${testFids.length} specific FIDs`);
+        } else {
+            // NORMAL MODE: Use optimized helper
+            const { getAllUniqueFIDs } = await import('@/lib/database');
+            uniqueFids = await getAllUniqueFIDs();
+            console.log(`📢 BROADCAST MODE: Broadcasting to all ${uniqueFids.length} users`);
         }
-
-        const uniqueFids = Array.from(fidSet);
 
         if (uniqueFids.length === 0) {
             return NextResponse.json(
