@@ -515,10 +515,10 @@ export default function BroadcastManagement() {
                         <div style={{ marginBottom: '20px' }}>
                             <h3 style={{ color: '#333' }}>İstatistikler</h3>
                             <p style={{ color: '#555' }}>
-                                Toplam: {broadcastDetails?.stats?.total || 0} |
-                                Gönderilen: {broadcastDetails?.stats?.sent || 0} |
-                                Başarısız: {broadcastDetails?.stats?.failed || 0} |
-                                Tıklama: {broadcastDetails?.stats?.clicks || 0}
+                                Toplam: {broadcastDetails?.status?.total || 0} |
+                                Gönderilen: {broadcastDetails?.status?.sent || 0} |
+                                Başarısız: {broadcastDetails?.status?.failed || 0} |
+                                Tıklama: {broadcastDetails?.status?.clicks || 0}
                             </p>
                         </div>
                         <div style={{ marginBottom: '20px' }}>
