@@ -359,6 +359,23 @@ export default function AdminDashboard() {
                     >
                         🔔 Test Notification
                     </button>
+                    <a
+                        href="/admin/broadcasts"
+                        style={{
+                            background: 'rgba(255,100,255,0.2)',
+                            border: '1px solid rgba(255,100,255,0.5)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            textDecoration: 'none',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            display: 'inline-flex',
+                            alignItems: 'center'
+                        }}
+                    >
+                        📢 Broadcasts
+                    </a>
                     <button
                         onClick={handleBroadcast}
                         disabled={loading}

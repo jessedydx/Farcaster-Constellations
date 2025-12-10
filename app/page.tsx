@@ -41,6 +41,28 @@ export default function Home() {
         hash,
     });
 
+    // Track notification click
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const notifId = params.get('notif');
+
+            if (notifId && context?.user?.fid) {
+                // Track click
+                fetch('/api/track-notification-click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        notifId,
+                        fid: context.user.fid
+                    })
+                }).catch(console.error);
+
+                // Clean URL
+                window.history.replaceState({}, '', '/');
+            }
+        }
+    }, [context?.user?.fid]);
 
     useEffect(() => {
         const load = async () => {
