@@ -449,12 +449,12 @@ export default function BroadcastManagement() {
                                         : '0.0';
                                     return (
                                         <tr key={broadcast.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                                            <td style={{ padding: '12px' }}>{new Date(broadcast.date).toLocaleString()}</td>
-                                            <td style={{ padding: '12px' }}>{broadcast.stats?.total || 0}</td>
-                                            <td style={{ padding: '12px', color: '#4CAF50' }}>{broadcast.stats?.sent || 0}</td>
-                                            <td style={{ padding: '12px', color: '#f44336' }}>{broadcast.stats?.failed || 0}</td>
-                                            <td style={{ padding: '12px', color: '#2196F3' }}>{broadcast.stats?.clicks || 0}</td>
-                                            <td style={{ padding: '12px' }}>{ctr}%</td>
+                                            <td style={{ padding: '12px', color: '#333' }}>{new Date(broadcast.date).toLocaleString()}</td>
+                                            <td style={{ padding: '12px', color: '#333' }}>{broadcast.stats?.total || 0}</td>
+                                            <td style={{ padding: '12px', color: '#4CAF50', fontWeight: '600' }}>{broadcast.stats?.sent || 0}</td>
+                                            <td style={{ padding: '12px', color: '#f44336', fontWeight: '600' }}>{broadcast.stats?.failed || 0}</td>
+                                            <td style={{ padding: '12px', color: '#2196F3', fontWeight: '600' }}>{broadcast.stats?.clicks || 0}</td>
+                                            <td style={{ padding: '12px', color: '#333', fontWeight: '600' }}>{ctr}%</td>
                                             <td style={{ padding: '12px' }}>
                                                 <button
                                                     onClick={() => loadBroadcastDetails(broadcast.id)}
