@@ -247,15 +247,28 @@ export async function getGlobalStats() {
 
 // Get all unique FIDs from constellations
 export async function getAllUniqueFIDs(): Promise<number[]> {
+    // Get all keys matching pattern
     const keys = await redis.keys('constellation:*');
-    const fids = new Set<number>();
 
-    for (const key of keys) {
-        const record = await redis.hgetall(key); // Corrected to hgetall
-        if (record && record.fid) {
-            fids.add(parseInt(record.fid)); // Parse fid to number
-        }
+    if (keys.length === 0) {
+        return [];
     }
 
+    // Use pipeline for batch operations (10x faster)
+    const pipeline = redis.pipeline();
+    keys.forEach(key => {
+        pipeline.hget(key, 'fid');
+    });
+
+    const results = await pipeline.exec();
+    const fids = new Set<number>();
+
+    results?.forEach(([err, fid]) => {
+        if (!err && fid) {
+            fids.add(parseInt(fid as string));
+        }
+    });
+
+    console.log(`📊 Collected ${fids.size} unique FIDs from ${keys.length} keys`);
     return Array.from(fids);
 }
