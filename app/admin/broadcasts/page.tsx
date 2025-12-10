@@ -11,6 +11,7 @@ export default function BroadcastManagement() {
 
     // Broadcast state
     const [broadcastMessage, setBroadcastMessage] = useState({ title: '', body: '' });
+    const [testFids, setTestFids] = useState<string>(''); // FID input field
     const [activeBroadcast, setActiveBroadcast] = useState<any>(null);
     const [broadcastHistory, setBroadcastHistory] = useState<any[]>([]);
     const [selectedBroadcast, setSelectedBroadcast] = useState<string | null>(null);
@@ -52,12 +53,13 @@ export default function BroadcastManagement() {
         }
     };
 
-    const handleStartBroadcast = async () => {
+    // Broadcast to ALL users
+    const handleBroadcastToAll = async () => {
         if (!broadcastMessage.title || !broadcastMessage.body) {
             alert('⚠️ Please enter title and body');
             return;
         }
-        const confirmMsg = `🚀 Start Broadcast?\n\nTitle: ${broadcastMessage.title}\nBody: ${broadcastMessage.body}\n\nThis will send to ALL users with retry & tracking.`;
+        const confirmMsg = `🚀 Broadcast to ALL?\n\nTitle: ${broadcastMessage.title}\nBody: ${broadcastMessage.body}\n\nThis will send to ALL users.`;
         if (!confirm(confirmMsg)) return;
 
         setLoading(true);
@@ -71,12 +73,13 @@ export default function BroadcastManagement() {
                         body: broadcastMessage.body,
                         targetUrl: window.location.origin
                     }
+                    // NO testFids = broadcast to all
                 })
             });
             const startData = await startRes.json();
             if (!startData.success) throw new Error(startData.error);
 
-            alert(`✅ Broadcast Queued!\n\nID: ${startData.broadcastId}\nTotal Users: ${startData.totalUsers}\n\nWorker starting...`);
+            alert(`✅ Queued!\n\nID: ${startData.broadcastId}\nTotal: ${startData.totalUsers}`);
 
             fetch('/api/admin/broadcast/worker', {
                 method: 'POST',
@@ -87,6 +90,70 @@ export default function BroadcastManagement() {
             setActiveBroadcast({ id: startData.broadcastId, ...startData });
             startStatusPolling(startData.broadcastId);
             setBroadcastMessage({ title: '', body: '' });
+            setTestFids(''); // Clear FID input
+        } catch (err: any) {
+            alert('❌ Error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Broadcast to SELECTED FIDs
+    const handleBroadcastToSelected = async () => {
+        if (!broadcastMessage.title || !broadcastMessage.body) {
+            alert('⚠️ Please enter title and body');
+            return;
+        }
+        if (!testFids.trim()) {
+            alert('⚠️ Please enter FID(s)');
+            return;
+        }
+
+        // Parse FIDs (comma or space separated)
+        const fidArray = testFids
+            .split(/[,\s]+/)
+            .map(f => f.trim())
+            .filter(f => f)
+            .map(f => parseInt(f))
+            .filter(f => !isNaN(f));
+
+        if (fidArray.length === 0) {
+            alert('⚠️ No valid FIDs found');
+            return;
+        }
+
+        const confirmMsg = `🎯 Broadcast to ${fidArray.length} Selected User(s)?\n\nTitle: ${broadcastMessage.title}\nFIDs: ${fidArray.join(', ')}`;
+        if (!confirm(confirmMsg)) return;
+
+        setLoading(true);
+        try {
+            const startRes = await fetch('/api/admin/broadcast/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: {
+                        title: broadcastMessage.title,
+                        body: broadcastMessage.body,
+                        targetUrl: window.location.origin
+                    },
+                    testFids: fidArray // Send to specific FIDs
+                })
+            });
+            const startData = await startRes.json();
+            if (!startData.success) throw new Error(startData.error);
+
+            alert(`✅ Queued!\n\nID: ${startData.broadcastId}\nSelected: ${startData.totalUsers} FIDs`);
+
+            fetch('/api/admin/broadcast/worker', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ broadcastId: startData.broadcastId })
+            }).catch(console.error);
+
+            setActiveBroadcast({ id: startData.broadcastId, ...startData });
+            startStatusPolling(startData.broadcastId);
+            setBroadcastMessage({ title: '', body: '' });
+            setTestFids(''); // Clear FID input
         } catch (err: any) {
             alert('❌ Error: ' + err.message);
         } finally {
@@ -273,22 +340,59 @@ export default function BroadcastManagement() {
                     />
                     <small style={{ color: '#999' }}>{broadcastMessage.body.length}/128 characters</small>
                 </div>
-                <button
-                    onClick={handleStartBroadcast}
-                    disabled={loading || !broadcastMessage.title || !broadcastMessage.body}
-                    style={{
-                        padding: '14px 28px',
-                        background: loading ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        fontSize: '16px',
-                        fontWeight: 'bold'
-                    }}
-                >
-                    {loading ? '⏳ Starting...' : '🚀 Start Broadcast'}
-                </button>
+
+                {/* FID Selection Input */}
+                <div style={{ marginBottom: '20px', padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '2px dashed #dee2e6' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#555', fontSize: '14px' }}>
+                        🎯 Seçili Gruba Gönder (Opsiyonel)
+                    </label>
+                    <input
+                        type="text"
+                        value={testFids}
+                        onChange={(e) => setTestFids(e.target.value)}
+                        placeholder="FID'leri girin (örn: 328997, 123456, 789012)"
+                        style={{ width: '100%', padding: '10px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
+                    />
+                    <small style={{ color: '#6c757d', fontSize: '12px' }}>Virgül veya boşlukla ayırın. Boş bırakırsanız "Herkese Gönder" kullanın.</small>
+                </div>
+
+                {/* Dual Button System */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                        onClick={handleBroadcastToAll}
+                        disabled={loading || !broadcastMessage.title || !broadcastMessage.body}
+                        style={{
+                            flex: 1,
+                            padding: '14px 28px',
+                            background: loading ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        {loading ? '⏳ Gönderiliyor...' : '📢 Herkese Gönder'}
+                    </button>
+                    <button
+                        onClick={handleBroadcastToSelected}
+                        disabled={loading || !broadcastMessage.title || !broadcastMessage.body || !testFids.trim()}
+                        style={{
+                            flex: 1,
+                            padding: '14px 28px',
+                            background: (loading || !testFids.trim()) ? '#ccc' : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: (loading || !testFids.trim()) ? 'not-allowed' : 'pointer',
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        {loading ? '⏳ Gönderiliyor...' : '🎯 Seçili Gruba Gönder'}
+                    </button>
+                </div>
             </div>
 
             {/* Active Broadcast */}
