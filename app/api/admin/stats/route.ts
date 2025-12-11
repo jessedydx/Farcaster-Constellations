@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
         console.log('REDIS_URL exists:', !!process.env.REDIS_URL);
 
         const stats = await getStats();
-        const activity = await getRecentActivity(5000); // Increased limit to show more history
+        const activity = await getRecentActivity(500); // Limit to 500 to prevent timeout
 
         // Filter out test data (FID 999999)
         const filteredActivity = activity.filter(item => item.fid !== 999999);
