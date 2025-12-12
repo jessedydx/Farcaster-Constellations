@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
         console.log('REDIS_URL exists:', !!process.env.REDIS_URL);
 
         const stats = await getCachedStats(); // ✨ NEW: Use cached stats
-        const activity = await getRecentActivity(500); // Limit to 500 to prevent timeout
+        const activity = await getRecentActivity(100); // Reduced to 100 to prevent timeout
 
         // Filter out test data (FID 999999)
         const filteredActivity = activity.filter(item => item.fid !== 999999);
