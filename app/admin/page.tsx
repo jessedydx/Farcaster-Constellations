@@ -616,32 +616,96 @@ export default function AdminDashboard() {
                             })}
                         </tbody>
                     </table>
+                    {activity.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6c757d' }}>
+                            <div style={{ fontSize: '48px', marginBottom: '10px' }}>📊</div>
+                            <div style={{ fontSize: '16px', fontWeight: '500' }}>No activity yet</div>
+                            <div style={{ fontSize: '14px', marginTop: '5px' }}>Constellations will appear here when created</div>
+                        </div>
+                    )}
                 </div>
 
-                <button
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages || loading}
-                    style={{
-                        padding: '8px 16px',
-                        background: currentPage === totalPages ? '#ccc' : '#667eea',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500'
-                    }}
-                >
-                    Next →
-                </button>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1 || loading}
+                            style={{
+                                padding: '8px 16px',
+                                background: currentPage === 1 ? '#ccc' : '#667eea',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                fontSize: '14px',
+                                fontWeight: '500'
+                            }}
+                        >
+                            ← Prev
+                        </button>
 
-                <div style={{ marginLeft: '20px', color: '#6c757d', fontSize: '14px' }}>
-                    Page {currentPage} of {totalPages} ({totalRecords} total records)
-                </div>
-            </div>
+                        {/* Page numbers */}
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                                let pageNum;
+                                if (totalPages <= 7) {
+                                    pageNum = i + 1;
+                                } else if (currentPage <= 4) {
+                                    pageNum = i + 1;
+                                } else if (currentPage >= totalPages - 3) {
+                                    pageNum = totalPages - 6 + i;
+                                } else {
+                                    pageNum = currentPage - 3 + i;
+                                }
+
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        disabled={loading}
+                                        style={{
+                                            padding: '8px 12px',
+                                            background: currentPage === pageNum ? '#667eea' : 'white',
+                                            color: currentPage === pageNum ? 'white' : '#667eea',
+                                            border: `2px solid #667eea`,
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            fontWeight: currentPage === pageNum ? 'bold' : '500',
+                                            minWidth: '40px'
+                                        }}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages || loading}
+                            style={{
+                                padding: '8px 16px',
+                                background: currentPage === totalPages ? '#ccc' : '#667eea',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                fontSize: '14px',
+                                fontWeight: '500'
+                            }}
+                        >
+                            Next →
+                        </button>
+
+                        <div style={{ marginLeft: '20px', color: '#6c757d', fontSize: '14px' }}>
+                            Page {currentPage} of {totalPages} ({totalRecords} total records)
+                        </div>
+                    </div>
                 )}
+            </div>
         </div>
-        </div >
     );
 }
 
