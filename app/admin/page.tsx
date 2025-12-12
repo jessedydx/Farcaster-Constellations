@@ -115,6 +115,28 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleRecalculateStats = async () => {
+        if (!confirm('🔄 This will recalculate ALL stats from scratch (2500+ records). This might take 5-10 seconds. Continue?')) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/recalculate-stats');
+            const data = await res.json();
+
+            if (data.success) {
+                alert(`✅ Stats Recalculated!\n\nTotal Creates: ${data.stats.totalCreates}\nTotal Mints: ${data.stats.totalMints}\nConversion Rate: ${data.stats.conversionRate}%`);
+                handleRefresh();
+            } else {
+                alert('❌ Recalculation failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error: any) {
+            console.error('Recalculate error:', error);
+            alert('❌ Failed: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSync = async () => {
         if (!confirm('This will scan all records and update Neynar scores. It might take a while. Continue?')) return;
 
@@ -324,6 +346,23 @@ export default function AdminDashboard() {
                         }}
                     >
                         {loading ? '↻ Refreshing...' : '↻ Refresh Data'}
+                    </button>
+                    <button
+                        onClick={handleRecalculateStats}
+                        disabled={loading}
+                        style={{
+                            background: 'rgba(0,255,127,0.2)',
+                            border: '1px solid rgba(0,255,127,0.5)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            opacity: loading ? 0.5 : 1
+                        }}
+                    >
+                        🔄 Recalculate Stats
                     </button>
                     <button
                         onClick={handleSync}
