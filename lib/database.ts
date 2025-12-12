@@ -64,6 +64,9 @@ export async function trackConstellation(data: {
     await redis.hset(key, redisRecord as any);
     await redis.zadd('constellations:timeline', Date.now(), key);
 
+    // ✨ NEW: Increment cached stats
+    await incrementCreateStats();
+
     console.log(`✅ Tracked constellation: FID ${data.fid}`);
 }
 
@@ -112,6 +115,9 @@ export async function markAsMinted(fid: number, txHash: string, tokenId?: number
                 await redis.hset(key, 'tokenId', tokenId.toString());
             }
 
+            // ✨ NEW: Increment cached stats
+            await incrementMintStats();
+
             console.log(`✅ Marked as minted: FID ${fid}, key: ${key}`);
             return;
         }
@@ -146,6 +152,71 @@ export async function getStats() {
         thisWeekMints,
     };
 }
+
+// ✨ NEW: Cached Stats Functions for instant dashboard loading
+
+// Get stats from cache (instant!)
+export async function getCachedStats() {
+    const cached = await redis.hgetall('stats:global');
+
+    if (!cached || !cached.totalCreates) {
+        // First time - calculate and cache
+        console.log('📊 First time loading stats, calculating...');
+        return await recalculateStats();
+    }
+
+    return {
+        totalCreates: parseInt(cached.totalCreates),
+        totalMints: parseInt(cached.totalMints),
+        conversionRate: parseInt(cached.conversionRate),
+        thisWeekCreates: parseInt(cached.thisWeekCreates),
+        thisWeekMints: parseInt(cached.thisWeekMints),
+    };
+}
+
+// Increment stats on constellation create
+export async function incrementCreateStats() {
+    await redis.hincrby('stats:global', 'totalCreates', 1);
+    await redis.hincrby('stats:global', 'thisWeekCreates', 1);
+    await updateConversionRate();
+    console.log('📈 Stats incremented: create');
+}
+
+// Increment stats on mint
+export async function incrementMintStats() {
+    await redis.hincrby('stats:global', 'totalMints', 1);
+    await redis.hincrby('stats:global', 'thisWeekMints', 1);
+    await updateConversionRate();
+    console.log('📈 Stats incremented: mint');
+}
+
+// Update conversion rate
+async function updateConversionRate() {
+    const stats = await redis.hgetall('stats:global');
+    const totalCreates = parseInt(stats.totalCreates || '0');
+    const totalMints = parseInt(stats.totalMints || '0');
+    const rate = totalCreates > 0 ? Math.round((totalMints / totalCreates) * 100) : 0;
+    await redis.hset('stats:global', 'conversionRate', rate);
+}
+
+// Manual recalculate (for admin "Sync" button or first-time init)
+export async function recalculateStats() {
+    console.log('🔄 Recalculating all stats from scratch...');
+    const stats = await getStats(); // Use existing function
+
+    // Save to cache
+    await redis.hset('stats:global', {
+        totalCreates: stats.totalCreates.toString(),
+        totalMints: stats.totalMints.toString(),
+        conversionRate: stats.conversionRate.toString(),
+        thisWeekCreates: stats.thisWeekCreates.toString(),
+        thisWeekMints: stats.thisWeekMints.toString(),
+    });
+
+    console.log('✅ Stats recalculated and cached');
+    return stats;
+}
+
 
 export async function getRecentActivity(limit: number = 50): Promise<ConstellationRecord[]> {
     const keys = await redis.zrevrange('constellations:timeline', 0, limit - 1);

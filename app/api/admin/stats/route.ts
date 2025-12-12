@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStats, getRecentActivity, ConstellationRecord } from '@/lib/database';
+import { getCachedStats, getRecentActivity, ConstellationRecord } from '@/lib/database';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const maxDuration = 30; // 30 seconds for admin stats
 
 export async function GET(request: NextRequest) {
     try {
         console.log('Admin stats endpoint called');
         console.log('REDIS_URL exists:', !!process.env.REDIS_URL);
 
-        const stats = await getStats();
+        const stats = await getCachedStats(); // ✨ NEW: Use cached stats
         const activity = await getRecentActivity(500); // Limit to 500 to prevent timeout
 
         // Filter out test data (FID 999999)
