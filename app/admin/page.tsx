@@ -35,6 +35,9 @@ export default function AdminDashboard() {
     const [error, setError] = useState<string | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(0);
 
     useEffect(() => {
         // Check for saved authentication
@@ -59,9 +62,8 @@ export default function AdminDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Add timestamp to bust cache completely
                 const timestamp = Date.now();
-                const res = await fetch(`/api/admin/stats?_t=${timestamp}`, {
+                const res = await fetch(`/api/admin/stats?page=${currentPage}&limit=100&_t=${timestamp}`, {
                     cache: 'no-store',
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -74,6 +76,8 @@ export default function AdminDashboard() {
                 const data = await res.json();
                 setStats(data.stats);
                 setActivity(data.activity);
+                setTotalPages(data.pagination?.totalPages || 1);
+                setTotalRecords(data.pagination?.total || 0);
                 setLastUpdated(new Date());
             } catch (error: any) {
                 console.error('Failed to fetch admin data:', error);
@@ -83,19 +87,14 @@ export default function AdminDashboard() {
             }
         };
 
-        // Load data immediately
         fetchData();
-
-        // No auto-refresh to save API usage
-        // const interval = setInterval(fetchData, 3000);
-        // return () => clearInterval(interval);
-    }, []);
+    }, [currentPage]);
 
     const handleRefresh = async () => {
         setLoading(true);
         try {
             const timestamp = Date.now();
-            const res = await fetch(`/api/admin/stats?_t=${timestamp}`, {
+            const res = await fetch(`/api/admin/stats?page=${currentPage}&limit=100&_t=${timestamp}`, {
                 cache: 'no-store',
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -106,6 +105,8 @@ export default function AdminDashboard() {
             const data = await res.json();
             setStats(data.stats);
             setActivity(data.activity);
+            setTotalPages(data.pagination?.totalPages || 1);
+            setTotalRecords(data.pagination?.total || 0);
             setLastUpdated(new Date());
         } catch (error: any) {
             console.error('Failed to refresh:', error);
@@ -615,16 +616,32 @@ export default function AdminDashboard() {
                             })}
                         </tbody>
                     </table>
-                    {activity.length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6c757d' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '10px' }}>📊</div>
-                            <div style={{ fontSize: '16px', fontWeight: '500' }}>No activity yet</div>
-                            <div style={{ fontSize: '14px', marginTop: '5px' }}>Constellations will appear here when created</div>
-                        </div>
-                    )}
+                </div>
+
+                <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages || loading}
+                    style={{
+                        padding: '8px 16px',
+                        background: currentPage === totalPages ? '#ccc' : '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                    }}
+                >
+                    Next →
+                </button>
+
+                <div style={{ marginLeft: '20px', color: '#6c757d', fontSize: '14px' }}>
+                    Page {currentPage} of {totalPages} ({totalRecords} total records)
                 </div>
             </div>
+                )}
         </div>
+        </div >
     );
 }
 
